@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.medos.mos.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.medos.mos.ui.profile.profileFragment"
+        android:label="@string/menu_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/nav_medical"
+        android:name="com.medos.mos.ui.medicalAppointment.medicalAppointmentFragment"
+        android:label="@string/menu_medical"
+        tools:layout="@layout/fragment_medical_appointment" />
+
+    <fragment
+        android:id="@+id/nav_medicine"
+        android:name="com.medos.mos.ui.medicineAppointment.medicineAppointmentFragment"
+        android:label="@string/menu_medicine"
+        tools:layout="@layout/fragment_medicine_appointment" />
+</navigation>
