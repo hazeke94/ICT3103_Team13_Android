@@ -2,6 +2,9 @@ package com.medos.mos;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -32,35 +35,42 @@ public class HttpRequests extends AsyncTask<HttpCall, String, String>{
         String token = httpCall.getHeader();
         StringBuilder response = new StringBuilder();
         try{
-            String dataParams = httpCall.getParams().toString();
+            String dataParams = "";
+            if(httpCall.getMethodtype() == HttpCall.GET){
+                JSONObject obj = new JSONObject(httpCall.getParams().toString());
+                dataParams = obj.getString("StartDate");
+//                dataParams = "14%2F10%2F2019";
+            }
+            else{
+                dataParams = httpCall.getParams().toString();
+            }
+
             Log.d(TAG, dataParams);
             byte[] postData = dataParams.getBytes(StandardCharsets.UTF_8);
             int postDataLength = postData.length;
             URL url = new URL(httpCall.getMethodtype() == HttpCall.GET ? httpCall.getUrl() + dataParams : httpCall.getUrl());
+            Log.d(TAG,url.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod(httpCall.getMethodtype() == HttpCall.GET ? "GET":"POST");
-            urlConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-            urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+            if(httpCall.getMethodtype() == HttpCall.POST){
+                urlConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+            }
+
             if(token!= null){
                 urlConnection.setRequestProperty("token", token);
                 Log.d(TAG,"token : " + token);
             }
 
-            urlConnection.setReadTimeout(10000 /* milliseconds */);
-            urlConnection.setConnectTimeout(15000 /* milliseconds */);
+            urlConnection.setReadTimeout(60000 /* milliseconds */);
+            urlConnection.setConnectTimeout(60000 /* milliseconds */);
             if(httpCall.getParams() != null && httpCall.getMethodtype() == HttpCall.POST){
-//                OutputStream os = urlConnection.getOutputStream();
-//                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, UTF_8));
-//                Log.d(TAG, dataParams);
-//                writer.append(dataParams);
-//                writer.flush();
-//                writer.close();
-//                os.close();
                 DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
                 wr.write(postData);
                 wr.flush();
                 wr.close();
             }
+            Log.d(TAG,"get Response");
             int responseCode = urlConnection.getResponseCode();
             Log.d(TAG, String.valueOf(responseCode));
             if(responseCode == HttpURLConnection.HTTP_OK){
@@ -72,12 +82,18 @@ public class HttpRequests extends AsyncTask<HttpCall, String, String>{
                 }
             }
         } catch (UnsupportedEncodingException e) {
+            Log.d(TAG,"UnsupportedEncodingException");
             e.printStackTrace();
         } catch (MalformedURLException e) {
+            Log.d(TAG,"MalformedURLException");
             e.printStackTrace();
         } catch (IOException e) {
+            Log.d(TAG,"IOException");
             e.printStackTrace();
-        }finally {
+        } catch (JSONException e) {
+            Log.d(TAG,"JSONException");
+            e.printStackTrace();
+        } finally {
             urlConnection.disconnect();
         }
         return response.toString();

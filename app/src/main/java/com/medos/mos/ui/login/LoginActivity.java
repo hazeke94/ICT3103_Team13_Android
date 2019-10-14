@@ -38,12 +38,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(View view) {
-        EditText edPhone = findViewById(R.id.username);
-        EditText edPassword = findViewById(R.id.password);
+        EditText edPhone = findViewById(R.id.editTextPhoneNumber);
+        EditText edPassword = findViewById(R.id.editTextPassword);
 
 //        final String phone = edPhone.getText().toString();
         final String phone = "81898811";
-        String password = edPassword.getText().toString();
+//        final String password = edPassword.getText().toString();
+        final String password = "1213@123B";
         String[] tokenResponse;
         params.put("phone", "81898811");
         params.put("password", "1213@123B");
@@ -77,6 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                     if(respond.getString("Success").equals("true")){
                         Intent otpIntent = new Intent(getApplicationContext(), OTPActivity.class);
                         otpIntent.putExtra("phone", phone);
+                        otpIntent.putExtra("password", password);
                         startActivity(otpIntent);
                     }
                     else{

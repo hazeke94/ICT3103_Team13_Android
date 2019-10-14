@@ -6,33 +6,49 @@
     android:layout_height="match_parent"
     tools:context=".ui.login.OTPActivity">
 
-    <EditText
-        android:id="@+id/edOTP"
-        android:layout_width="0dp"
-        android:hint="Enter OTP"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="96dp"
-        android:layout_marginEnd="24dp"
-        android:inputType="number"
-        android:selectAllOnFocus="true"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="30dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:text="An OTP has been sent to your phone.."
+                android:textSize="@dimen/font_1"
+                android:textStyle="bold"
+                tools:layout_editor_absoluteX="346dp" />
 
-    <Button
-        android:id="@+id/btnOTPSubmit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
-        android:enabled="true"
-        android:onClick="sendOTP"
-        android:text="Submit"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edOTP" />
+            <EditText
+                android:id="@+id/edOTP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter OTP"
+                android:inputType="number"
+                android:paddingBottom="20dp"
+                android:singleLine="true"
+                android:textSize="@dimen/textInput"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="173dp"
+                android:imeOptions="actionDone"/>
 
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:onClick="sendOTP"
+                android:padding="@dimen/layout_15"
+                android:text="Login"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

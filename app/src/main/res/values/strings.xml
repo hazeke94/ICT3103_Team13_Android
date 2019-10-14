@@ -22,20 +22,12 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="logout">Logout</string>
 
     <!--Appointment-->
     <string name="no_appointment">No Appointment</string>
 
     <string name="issuer">https://ict3103api.azurewebsites.net</string>
-
-
-
-
-
-
-
-
-
 
 
     <!-- TODO: Remove or change this placeholder text -->

@@ -3,6 +3,7 @@ package com.medos.mos.ui.login;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -14,6 +15,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
+import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.Payload;
@@ -33,9 +35,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OTPActivity extends AppCompatActivity {
-    String phone = "";
+    String phone;
+    String password;
     Utils util;
-
+    SharedPreferences pref;
+    SharedPreferences.Editor editor;
     private static final String TAG = "OTPActivity";
 
     @Override
@@ -43,7 +47,11 @@ public class OTPActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_otp);
         phone = getIntent().getStringExtra("phone");
+        password = getIntent().getStringExtra("password");
+
         util = new Utils();
+        pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
+        editor = pref.edit();
     }
 
     public void sendOTP(View view) {
@@ -57,7 +65,7 @@ public class OTPActivity extends AppCompatActivity {
         headerClaims.put("typ", "JWT");
 
         //generate Payload
-        payload = generatePayload();
+        payload = util.generatePayload(getResources().getString(R.string.issuer));
 
         try {
             //We will sign our JWT with our ApiKey secret
@@ -95,6 +103,36 @@ public class OTPActivity extends AppCompatActivity {
                 public void onResponse(String response) {
                     super.onResponse(response);
                     Log.d(TAG, "JWT response: " + response);
+                    try {
+                        String[] tokenResponse = JWTUtils.decoded(response);
+                        JSONObject obj = new JSONObject(tokenResponse[1]);
+//                        Log.d(TAG, obj.getString("respond"));
+                        String result = obj.getString("respond");
+                        JSONObject respond = new JSONObject(result);
+
+                        if(respond.getString("Success").equals("true")){
+                            //store in sharedpreference
+                            JSONObject resObj = new JSONObject(respond.getString("Respond"));
+                            long loginTimeStamp = System.currentTimeMillis() / 1000;
+                            editor.putString("sessionToken", resObj.getString("sessiontoken"));
+                            editor.putString("Phone", phone);
+                            editor.putString("Password", password);
+                            editor.putLong("LoginTimeStamp", loginTimeStamp);
+                            editor.commit();
+                            Log.d(TAG, resObj.getString("sessiontoken"));
+
+                            Intent home = new Intent(getApplicationContext(), MainActivity.class);
+                            home.putExtra("phone", phone);
+                            startActivity(home);
+                        }
+
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
                 }
             }.execute(httpCallPost);
 
@@ -111,13 +149,7 @@ public class OTPActivity extends AppCompatActivity {
 
 
 
-    public Payload generatePayload () {
 
-        long unixTime = System.currentTimeMillis() / 1000;
-        Payload payloadObj = new com.medos.mos.model.Payload(getResources().getString(R.string.issuer),unixTime + 10,unixTime);
-        return payloadObj;
-
-    }
 
 
 
