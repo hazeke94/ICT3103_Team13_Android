@@ -1,4 +1,7 @@
 package com.medos.mos;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -27,7 +30,17 @@ public class HttpRequests extends AsyncTask<HttpCall, String, String>{
 
     private static final String UTF_8 = "UTF-8";
     private static String TAG = "HttpRequests";
+    private ProgressDialog dialog;
 
+
+    public HttpRequests(Activity activity){
+        dialog = new ProgressDialog(activity);
+    }
+    @Override
+    protected void onPreExecute() {
+        dialog.setMessage("Please wait..");
+        dialog.show();
+    }
     @Override
     protected String doInBackground(HttpCall... params) {
         HttpURLConnection urlConnection = null;
@@ -37,9 +50,12 @@ public class HttpRequests extends AsyncTask<HttpCall, String, String>{
         try{
             String dataParams = "";
             if(httpCall.getMethodtype() == HttpCall.GET){
-                JSONObject obj = new JSONObject(httpCall.getParams().toString());
-                dataParams = obj.getString("StartDate");
-//                dataParams = "14%2F10%2F2019";
+                if(httpCall.getParams()!= null){
+                    Log.d(TAG,"not null");
+                    JSONObject obj = new JSONObject(httpCall.getParams().toString());
+                    dataParams = obj.getString("StartDate");
+                }
+
             }
             else{
                 dataParams = httpCall.getParams().toString();
@@ -94,7 +110,9 @@ public class HttpRequests extends AsyncTask<HttpCall, String, String>{
             Log.d(TAG,"JSONException");
             e.printStackTrace();
         } finally {
-            urlConnection.disconnect();
+            if(urlConnection !=null) {
+                urlConnection.disconnect();
+            }
         }
         return response.toString();
     }
@@ -102,6 +120,9 @@ public class HttpRequests extends AsyncTask<HttpCall, String, String>{
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
+        if (dialog.isShowing()) {
+            dialog.dismiss();
+        }
         onResponse(s);
     }
 

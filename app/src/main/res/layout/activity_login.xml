@@ -91,6 +91,17 @@
                 android:padding="@dimen/layout_15"
                 android:text="Login"
                 android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnForgetPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+
+                android:padding="@dimen/layout_15"
+                android:text="Forget Password"
+                android:textSize="14sp" />
+
         </LinearLayout>
     </ScrollView>
 

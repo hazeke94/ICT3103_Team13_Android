@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         httpCallPost.setUrl(util.LOGINAPIURL);
 
         httpCallPost.setParams(loginObject);
-        new HttpRequests(){
+        new HttpRequests(this){
             @Override
             public void onResponse(String response) {
                 super.onResponse(response);
@@ -89,6 +89,26 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                     Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+            }
+        }.execute(httpCallPost);
+    }
+
+    public void forgetPassword(){
+        params = new HashMap<>();
+        params.put("phone", "81898811");
+        JSONObject resetObject = new JSONObject(params);
+
+
+        HttpCall httpCallPost = new HttpCall();
+        httpCallPost.setMethodtype(HttpCall.POST);
+        httpCallPost.setUrl(util.FORGETAPIURL);
+
+        httpCallPost.setParams(resetObject);
+        new HttpRequests(this){
+            @Override
+            public void onResponse(String response) {
+                super.onResponse(response);
+                Log.d(TAG,"JWT response: " + response);
             }
         }.execute(httpCallPost);
     }

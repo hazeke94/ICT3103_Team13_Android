@@ -1,38 +1,26 @@
 package com.medos.mos.ui.login;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
-import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.HashMap;
-import java.util.Map;
 
 public class OTPActivity extends AppCompatActivity {
     String phone;
@@ -56,39 +44,12 @@ public class OTPActivity extends AppCompatActivity {
 
     public void sendOTP(View view) {
         EditText edOTP = findViewById(R.id.edOTP);
-        Payload payload;
         int otp_input = Integer.parseInt(edOTP.getText().toString());
 
-
-        Map<String, Object> headerClaims = new HashMap();
-        headerClaims.put("alg", "RS256");
-        headerClaims.put("typ", "JWT");
-
-        //generate Payload
-        payload = util.generatePayload(getResources().getString(R.string.issuer));
-
         try {
-            //We will sign our JWT with our ApiKey secret
-            String privateKey = getResources().getString(R.string.SPIK);
-            privateKey = privateKey.replace("-----BEGIN RSA PRIVATE KEY-----", "");
-            privateKey = privateKey.replace("-----END RSA PRIVATE KEY-----", "");
-            privateKey = privateKey.replaceAll("\\s+", "");
-
-           PrivateKey privKey = JWTUtils.generatePrivateKey(privateKey);
-
-            Algorithm algorithm = Algorithm.RSA256(null, (RSAPrivateKey) privKey);
-
-            //create token to be sent for otp
-            String token = JWT.create()
-                    .withHeader(headerClaims)
-                    .withClaim("iss", payload.getIss())
-                    .withClaim("exp", payload.getEx())
-                    .withClaim("iat", payload.getIat())
-                    .sign(algorithm);
+            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer));
             Log.d(TAG,token);
-            Log.d(TAG,algorithm.toString());
             JSONObject otp_submit = new JSONObject();
-//            otp_submit.put("otp", otp_input);
             otp_submit.put("otp", otp_input);
             otp_submit.put("phone", phone);
 
@@ -98,7 +59,7 @@ public class OTPActivity extends AppCompatActivity {
             httpCallPost.setUrl(util.OTPAPIURL);
 
             httpCallPost.setParams(otp_submit);
-            new HttpRequests() {
+            new HttpRequests(this) {
                 @Override
                 public void onResponse(String response) {
                     super.onResponse(response);
@@ -106,7 +67,6 @@ public class OTPActivity extends AppCompatActivity {
                     try {
                         String[] tokenResponse = JWTUtils.decoded(response);
                         JSONObject obj = new JSONObject(tokenResponse[1]);
-//                        Log.d(TAG, obj.getString("respond"));
                         String result = obj.getString("respond");
                         JSONObject respond = new JSONObject(result);
 
@@ -118,12 +78,16 @@ public class OTPActivity extends AppCompatActivity {
                             editor.putString("Phone", phone);
                             editor.putString("Password", password);
                             editor.putLong("LoginTimeStamp", loginTimeStamp);
-                            editor.commit();
+                            editor.apply();
                             Log.d(TAG, resObj.getString("sessiontoken"));
 
                             Intent home = new Intent(getApplicationContext(), MainActivity.class);
                             home.putExtra("phone", phone);
                             startActivity(home);
+                        }
+                        else{
+//                          //open dialog to confirm
+                            Toast.makeText(OTPActivity.this, "Invalid OTP", Toast.LENGTH_SHORT).show();
                         }
 
 
@@ -139,10 +103,6 @@ public class OTPActivity extends AppCompatActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (NoSuchAlgorithmException ex) {
-            ex.printStackTrace();
-        } catch (InvalidKeySpecException ex) {
-            ex.printStackTrace();
         }
     }
 

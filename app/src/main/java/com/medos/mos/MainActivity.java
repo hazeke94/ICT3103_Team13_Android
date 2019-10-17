@@ -10,6 +10,7 @@ import com.google.android.material.snackbar.Snackbar;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -28,14 +29,14 @@ import android.view.Menu;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-
+    SharedPreferences pref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -81,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void logoutUser(){
         //clear sharedPreference
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
         SharedPreferences.Editor editor = pref.edit();
         editor.putString("sessionToken", null);
         editor.putString("Phone", null);
@@ -92,5 +92,17 @@ public class MainActivity extends AppCompatActivity {
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
         finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        //get current time
+        Long timestamp = System.currentTimeMillis() / 1000;
+        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
+        Long difference = timestamp - loginStamp;
+        if(difference >= 900000){
+            logoutUser();
+        }
     }
 }
