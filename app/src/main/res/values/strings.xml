@@ -22,10 +22,53 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="logout">Logout</string>
 
     <!--Appointment-->
     <string name="no_appointment">No Appointment</string>
 
+    <string name="issuer">https://ict3103api.azurewebsites.net</string>
+
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="SPK">
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqtAbQoSbkvMzfyBV7xaD
+wWb8qTXT+jUQzaY5wy9SXfqjfZ1tbTUDen9ROZV18BXwp5kNA4AdWo/IFsnBH7dX
+0bXhQ88lMTYl7TYUvYIWQNi2QYVU0K0R4aHkn23veez/whXsyw4ul/tQJwCb3iDd
+X40BIAL5T5lujhdEjhB9H7KzEKv94rWrRDI0OPOKLRXAJNGOQJMPxS+nUA/4t/va
+T2stCv6sIycv4l/qcinEr7UcC0DQpdJ1cFtqO2OoExgRN1qS9fonh+va9zYDvHLx
+ngprkm+HUaLWJ+T9vVNl8yrBvd26skopxZe1npMGFkSQdbOusGpk484bvKqqU/+j
+awIDAQAB
+    </string>
+    <string name="SPIK">
+        -----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAk/V66oXQt6vhF3bcH06vsBm4WWAqCLgYdyqjx5IZr5o04p22
+TIJKW2pHVqk+l7v3CHvpU2aV8SLvImkIXip19PGD/QjQeTEWgsqdKZNhbwO2K2dp
+28vV3KJFSRgXI+3fdNSIa/VC/j+9eOm8yCedtuMp1EV1P/ZH13aJgL+N3nm7BLn4
+VFeedcssJG8rALEi6865KcuOEOtyGEBMZq+TMGbeb0BNur8M5JQS5BcHOPZhpFeb
+JzRV3cx/5WflbVSBlpoqNKzv4JHv11RIe6xziD8157NGGY+dv3C7UCRsB/F3SsXT
+z/q1k8BrxJl9ftJWZi7xYxOzzl1a99v000jzKwIDAQABAoIBACanLcpQ1Rr2oyI/
+Ifhn1Qv7XCa1MaX/ehy/nfPIHj+62HAPZY2NSCGjnSlto3V+XGXyAR2RokBRsQlb
+SR1YmGI6KhITmGrgwRHAHti6sOyQmqmyJXyPPrqaBeG3kmwHe6YI0+7oLu0+95+7
+6F6dwt0BcW8MCjqAe3o1dGyXHlftK7Z5Uz3qWEgSHtGQ+EKKun5XBMjTPQEFue9Y
+Ri7Ra0pDRvDiO4Hphw68zCxOg+K8UVQsR1n/aAxxo9hkPlKMQWAUvMpS1GP+l7Mz
+TGitOdXxUhOtBbEL2wwJMl9woF8a3am+mEpz1xzyOwbN2LOVhcTISXGHJ2abQw6k
+GLqsm0ECgYEA68tV9o7h5cHQdFCchRyc00lyF+xbrjOb3FukqvEbZfLu7U2KJNpp
+oFbeqU1H8XB2I31z4GhkoqAqKD6D418p2mtXzp/13jQLLq0A2/CBXpy2k/NBJWh6
+xIqpFZ03fDl/s0slBN4lvtafRrIyUTwJTMjW2ad1/dOHN6ZPN6CkkSECgYEAoKNI
+cF7grE0hefGzbhS4O9I/KCSSIgo3isaMU5X4vrOoo4qR9D3gF9B5J9eDOowilHrO
+7D+lEfdoSvjImsRtfcppLRP7DAJ1Q8rmUntiTucmfBxDN27sgWhFtG62c/mEyd2f
+X1bZLARygE+XEqQXl5kYx+eggg3BnQR/bQbIHssCgYAfs2+0PVN7m0oWSTwx3T3s
+XiR7uOg+jGu4/Y0u+klvtHCQ8OrQt5iZ2PQImP5CJJeNf/FTS1W0U4o3bOg4anPr
+DKF6gyEAJckXFmVWLIiIGtOlIoAwslJHGElRQZjTF7vmdATfGarDdIFndM+1AjhR
+3XKdQplnbcfxIGfoF63oYQKBgE+FZWfTYA+Lw0W1xCh7c1SR2RgLOphFTIeTkIYU
+WOY21AXZpDUvqE7BsihqBJmoI7ozLVpAi3vgaS2sCMqs8LLzz6s0F/QzB0//EpPE
+Zr8+qIuKBjBb5hKNxuvyXrn8zKKN5sZwnOOwc+pW/CeLOe6fKGhVntyi6LTNNDOJ
+xumPAoGBAKj+1YVKtcxaJfaxKMnyyz8dqIOjftMfCGyV0bvtxCKIa9yciu9yF3od
+sw0InSb9aDvA7ZIneRA+r8NTET3pshbrrNh6Zg4ziLu8MFq4YD4OK5O+fTCIWYxX
+qIJggg0HPz32Y+meYDX+Ks27uu51oV3YpFrqh4EagamHh3/HpPcv
+-----END RSA PRIVATE KEY-----
+    </string>
 </resources>

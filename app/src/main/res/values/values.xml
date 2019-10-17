@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id" translatable="false">29320367249-qovf3dhkl9j4b8d1kt9opfv1bf421sdf.apps.googleusercontent.com</string>
+    <string name="firebase_database_url" translatable="false">https://itpteam9portermanagementsys.firebaseio.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">29320367249</string>
+    <string name="google_api_key" translatable="false">AIzaSyBLJH7_kgAwXshnidM2pbtjm9TtGvY63Tc</string>
+    <string name="google_app_id" translatable="false">1:29320367249:android:0d944a724b7a5dde</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBLJH7_kgAwXshnidM2pbtjm9TtGvY63Tc</string>
+    <string name="google_storage_bucket" translatable="false">itpteam9portermanagementsys.appspot.com</string>
+    <string name="project_id" translatable="false">itpteam9portermanagementsys</string>
+</resources>
