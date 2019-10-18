@@ -38,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         util = new Utils();
         pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
-        if(pref.getString("phone", "") != null){
+        if(pref.getString("phone", "") != ""){
             //redirect to mainactivity
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
