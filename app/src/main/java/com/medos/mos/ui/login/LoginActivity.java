@@ -1,7 +1,12 @@
 package com.medos.mos.ui.login;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,7 +26,9 @@ import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.ui.JWTUtils;
+import com.medos.mos.ui.medicalAppointment.medicalAppointmentFragment;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.HashMap;
 
@@ -32,18 +39,22 @@ public class LoginActivity extends AppCompatActivity {
     Utils util;
     HashMap<String, String> params = new HashMap<>();
     SharedPreferences pref;
+    Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         util = new Utils();
         pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
-        if(pref.getString("phone", "") != ""){
-            //redirect to mainactivity
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
+        String p = pref.getString("Phone", "");
+        Log.d(TAG, p);
+        context = this;
+//        if(pref.getString("Phone", "") != ""){
+//            //redirect to mainactivity
+//            Intent intent = new Intent(this, MainActivity.class);
+//            startActivity(intent);
+//            finish();
+//        }
 
 
     }
@@ -58,10 +69,9 @@ public class LoginActivity extends AppCompatActivity {
         final String password = "1213@123B";
         String[] tokenResponse;
         params.put("phone", "81898811");
-        params.put("password", "1213@123B");
+        params.put("password", "1213@1234B");
 
         JSONObject loginObject = new JSONObject(params);
-        String param = loginObject.toString();
 
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setMethodtype(HttpCall.POST);
@@ -104,23 +114,100 @@ public class LoginActivity extends AppCompatActivity {
         }.execute(httpCallPost);
     }
 
-    public void forgetPassword(){
-        params = new HashMap<>();
-        params.put("phone", "81898811");
-        JSONObject resetObject = new JSONObject(params);
+    public void forgetPassword(View view) {
+        if (pref.getString("phone", "") != "") {
+            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+            params = new HashMap<>();
+            params.put("phone", "81898811");
+            JSONObject resetObject = new JSONObject(params);
 
 
-        HttpCall httpCallPost = new HttpCall();
-        httpCallPost.setMethodtype(HttpCall.POST);
-        httpCallPost.setUrl(util.FORGETAPIURL);
+            HttpCall httpCallPost = new HttpCall();
+            httpCallPost.setMethodtype(HttpCall.POST);
+            httpCallPost.setUrl(util.FORGETREQUESTAPIURL);
 
-        httpCallPost.setParams(resetObject);
-        new HttpRequests(this){
-            @Override
-            public void onResponse(String response) {
-                super.onResponse(response);
-                Log.d(TAG,"JWT response: " + response);
-            }
-        }.execute(httpCallPost);
+            httpCallPost.setParams(resetObject);
+            new HttpRequests(this) {
+                @Override
+                public void onResponse(String response) {
+                    super.onResponse(response);
+                    Log.d(TAG, "JWT response: " + response);
+                }
+            }.execute(httpCallPost);
+        } else {
+//            Toast.makeText(this, "No login session detected.", Toast.LENGTH_SHORT).show();
+            //open dialog to confirm
+            final EditText input = new EditText(this);
+            input.setHint("Phone Number");
+            input.setText(pref.getString("Phone",""));
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setTitle("Reset Password");
+            alertDialog.setMessage("Is this your number? Do you want to reset");
+            alertDialog.setView(input);
+
+            alertDialog.setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //generate token first
+                    if(!input.getText().equals("")){
+                        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+                        JSONObject resetObj = new JSONObject();
+                        try {
+                            resetObj.put("phone", input.getText());
+
+
+                            HttpCall httpCallPost = new HttpCall();
+                            //httpCallPost.setHeader(token);
+                            httpCallPost.setMethodtype(HttpCall.POST);
+                            httpCallPost.setUrl(util.FORGETREQUESTAPIURL);
+
+                            httpCallPost.setParams(resetObj);
+                            new HttpRequests((Activity) context) {
+                                @Override
+                                public void onResponse(String response) {
+                                    super.onResponse(response);
+                                    Log.d(TAG, "JWT response: " + response);
+                                    try {
+                                        String[] tokenResponse = JWTUtils.decoded(response);
+                                        JSONObject obj = new JSONObject(tokenResponse[1]);
+
+                                        String result = obj.getString("respond");
+                                        Log.d(TAG, result);
+                                        
+                                        JSONObject respond = new JSONObject(result);
+                                        if(respond.getString("Success").equals("true")){
+                                            Intent intent = new Intent(LoginActivity.this, ForgetPassword.class);
+                                            intent.putExtra("phone", input.getText());
+                                            startActivity(intent);
+                                        }
+                                        else{
+                                            Toast.makeText(LoginActivity.this, "Error in requesting for reset", Toast.LENGTH_SHORT).show();
+                                        }
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+
+                                }
+                            }.execute(httpCallPost);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+            });
+            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // DO SOMETHING HERE
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog dialog = alertDialog.create();
+            dialog.show();
+        }
     }
 }

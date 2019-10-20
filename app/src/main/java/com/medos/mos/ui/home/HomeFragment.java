@@ -64,6 +64,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
+                        getCurrentAppointment();
                     }
                 },1000);
             }

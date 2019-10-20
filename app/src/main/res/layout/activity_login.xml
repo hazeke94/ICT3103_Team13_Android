@@ -98,6 +98,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
 
+                android:onClick="forgetPassword"
                 android:padding="@dimen/layout_15"
                 android:text="Forget Password"
                 android:textSize="14sp" />

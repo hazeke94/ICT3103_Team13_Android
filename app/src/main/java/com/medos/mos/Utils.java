@@ -20,6 +20,7 @@ public class Utils {
     public String OTPAPIURL = "https://ict3103api.azurewebsites.net/api/Otp";
     public String AvailableSlotsGETURL = "https://ict3103api.azurewebsites.net/api/ClinicBookingHours/MedicalAppointment?StartDate=";
     public String MEDICALAPPTURL = "https://ict3103api.azurewebsites.net/api/MedicalAppointment";
+    public String FORGETREQUESTAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword/Request";
     public String FORGETAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword";
 
 
