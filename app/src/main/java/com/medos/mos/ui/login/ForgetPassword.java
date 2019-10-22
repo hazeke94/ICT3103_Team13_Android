@@ -3,6 +3,7 @@ package com.medos.mos.ui.login;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
+import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.ui.JWTUtils;
@@ -69,13 +71,11 @@ public class ForgetPassword extends AppCompatActivity {
                         Log.d(TAG, respond.toString());
 
                         if(respond.getString("Success").equals("true")){
-                            Intent otpIntent = new Intent(getApplicationContext(), OTPActivity.class);
-                            otpIntent.putExtra("phone", phone);
-                            otpIntent.putExtra("password", newPassword);
-                            startActivity(otpIntent);
+                            Intent resetIntent = new Intent(getApplicationContext(), LoginActivity.class);//
+                            startActivity(resetIntent);
                         }
                         else{
-                            Toast.makeText(ForgetPassword.this, "Login failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ForgetPassword.this, "Wrong code reset", Toast.LENGTH_SHORT).show();
                         }
 
                     } catch (Exception e) {

@@ -49,78 +49,79 @@ public class LoginActivity extends AppCompatActivity {
         String p = pref.getString("Phone", "");
         Log.d(TAG, p);
         context = this;
-//        if(pref.getString("Phone", "") != ""){
-//            //redirect to mainactivity
-//            Intent intent = new Intent(this, MainActivity.class);
-//            startActivity(intent);
-//            finish();
-//        }
-
-
+        if(p != ""){
+            //redirect to mainactivity
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     public void login(View view) {
         EditText edPhone = findViewById(R.id.editTextPhoneNumber);
         EditText edPassword = findViewById(R.id.editTextPassword);
 
-//        final String phone = edPhone.getText().toString();
-        final String phone = "81898811";
-//        final String password = edPassword.getText().toString();
-        final String password = "1213@123B";
-        String[] tokenResponse;
-        params.put("phone", "81898811");
-        params.put("password", "1213@1234B");
+        final String phone = edPhone.getText().toString();
+        final String password = edPassword.getText().toString();
 
-        JSONObject loginObject = new JSONObject(params);
+        boolean validate = util.validateNumber(phone);
+        if(validate){
+            String[] tokenResponse;
+            params.put("phone", phone);
+            params.put("password", password);
+            JSONObject loginObject = new JSONObject(params);
 
-        HttpCall httpCallPost = new HttpCall();
-        httpCallPost.setMethodtype(HttpCall.POST);
-        httpCallPost.setUrl(util.LOGINAPIURL);
+            HttpCall httpCallPost = new HttpCall();
+            httpCallPost.setMethodtype(HttpCall.POST);
+            httpCallPost.setUrl(util.LOGINAPIURL);
 
-        httpCallPost.setParams(loginObject);
-        new HttpRequests(this){
-            @Override
-            public void onResponse(String response) {
-                super.onResponse(response);
-                Log.d(TAG,"JWT response: " + response);
-                try {
-                    String[] tokenResponse = JWTUtils.decoded(response);
-                    Log.d(TAG,response);
-                    Log.d(TAG, tokenResponse[0]);
-                    Log.d(TAG, tokenResponse[1]);
+            httpCallPost.setParams(loginObject);
+            new HttpRequests(this){
+                @Override
+                public void onResponse(String response) {
+                    super.onResponse(response);
+                    Log.d(TAG,"JWT response: " + response);
+                    try {
+                        String[] tokenResponse = JWTUtils.decoded(response);
+                        Log.d(TAG,response);
+                        Log.d(TAG, tokenResponse[0]);
+                        Log.d(TAG, tokenResponse[1]);
 
-                    JSONObject obj = new JSONObject(tokenResponse[1]);
-                    Log.d(TAG, obj.getString("respond"));
+                        JSONObject obj = new JSONObject(tokenResponse[1]);
+                        Log.d(TAG, obj.getString("respond"));
 
-                    String result = obj.getString("respond");
-                    JSONObject respond = new JSONObject(result);
-                    Log.d(TAG, respond.toString());
+                        String result = obj.getString("respond");
+                        JSONObject respond = new JSONObject(result);
+                        Log.d(TAG, respond.toString());
 
-                    if(respond.getString("Success").equals("true")){
-                        Intent otpIntent = new Intent(getApplicationContext(), OTPActivity.class);
-                        otpIntent.putExtra("phone", phone);
-                        otpIntent.putExtra("password", password);
-                        startActivity(otpIntent);
+                        if(respond.getString("Success").equals("true")){
+                            Intent otpIntent = new Intent(getApplicationContext(), OTPActivity.class);
+                            otpIntent.putExtra("phone", phone);
+                            otpIntent.putExtra("password", password);
+                            startActivity(otpIntent);
+                        }
+                        else{
+                            Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                    else{
-                        Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }
-        }.execute(httpCallPost);
+            }.execute(httpCallPost);
+        }
+        else{
+            Toast.makeText(context, "Enter a valid number", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     public void forgetPassword(View view) {
         if (pref.getString("phone", "") != "") {
-            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
             params = new HashMap<>();
             params.put("phone", "81898811");
             JSONObject resetObject = new JSONObject(params);
-
 
             HttpCall httpCallPost = new HttpCall();
             httpCallPost.setMethodtype(HttpCall.POST);
@@ -149,15 +150,13 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //generate token first
-                    if(!input.getText().equals("")){
-                        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+                    //validate number
+                    boolean validate = util.validateNumber(input.getText().toString());
+                    if(validate){
                         JSONObject resetObj = new JSONObject();
                         try {
-                            resetObj.put("phone", input.getText());
-
-
+                            resetObj.put("phone", input.getText().toString());
                             HttpCall httpCallPost = new HttpCall();
-                            //httpCallPost.setHeader(token);
                             httpCallPost.setMethodtype(HttpCall.POST);
                             httpCallPost.setUrl(util.FORGETREQUESTAPIURL);
 
@@ -173,11 +172,11 @@ public class LoginActivity extends AppCompatActivity {
 
                                         String result = obj.getString("respond");
                                         Log.d(TAG, result);
-                                        
+
                                         JSONObject respond = new JSONObject(result);
                                         if(respond.getString("Success").equals("true")){
                                             Intent intent = new Intent(LoginActivity.this, ForgetPassword.class);
-                                            intent.putExtra("phone", input.getText());
+                                            intent.putExtra("phone", input.getText().toString());
                                             startActivity(intent);
                                         }
                                         else{
@@ -187,13 +186,14 @@ public class LoginActivity extends AppCompatActivity {
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
-
-
                                 }
                             }.execute(httpCallPost);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                    }
+                    else{
+
                     }
 
                 }

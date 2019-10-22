@@ -114,4 +114,19 @@ public class Utils {
 
         return null;
     }
+
+    public boolean validateNumber(String number){
+        //check if number contains alphabet
+        if(!number.equals("") && number.length() == 8){
+            for (int i = 0; i < number.length(); i++) {
+                // checks whether the character is not a letter
+                // if it is a letter ,it will return false
+                if ((Character.isLetter(number.charAt(i)))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 }

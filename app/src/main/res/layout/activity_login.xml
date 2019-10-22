@@ -59,7 +59,8 @@
                 android:textSize="@dimen/textInput"
                 tools:ignore="MissingConstraints"
                 tools:layout_editor_absoluteX="173dp"
-                android:imeOptions="actionDone"/>
+                android:imeOptions="actionDone"
+                android:inputType="number"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -80,7 +81,8 @@
                 android:textSize="@dimen/textInput"
                 tools:ignore="MissingConstraints"
                 tools:layout_editor_absoluteX="173dp"
-                android:imeOptions="actionDone"/>
+                android:imeOptions="actionDone"
+                android:inputType="textPassword"/>
 
             <Button
                 android:id="@+id/btnLogin"
@@ -90,7 +92,8 @@
                 android:onClick="login"
                 android:padding="@dimen/layout_15"
                 android:text="Login"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                 />
 
             <Button
                 android:id="@+id/btnForgetPassword"
