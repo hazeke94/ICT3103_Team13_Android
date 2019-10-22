@@ -20,6 +20,7 @@ public class Utils {
     public String OTPAPIURL = "https://ict3103api.azurewebsites.net/api/Otp";
     public String AvailableSlotsGETURL = "https://ict3103api.azurewebsites.net/api/ClinicBookingHours/MedicalAppointment?StartDate=";
     public String MEDICALAPPTURL = "https://ict3103api.azurewebsites.net/api/MedicalAppointment";
+    public String FORGETREQUESTAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword/Request";
     public String FORGETAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword";
 
 
@@ -112,5 +113,20 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public boolean validateNumber(String number){
+        //check if number contains alphabet
+        if(!number.equals("") && number.length() == 8){
+            for (int i = 0; i < number.length(); i++) {
+                // checks whether the character is not a letter
+                // if it is a letter ,it will return false
+                if ((Character.isLetter(number.charAt(i)))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }
