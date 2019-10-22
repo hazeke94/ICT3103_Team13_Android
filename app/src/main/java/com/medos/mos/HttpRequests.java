@@ -35,6 +35,7 @@ public class HttpRequests extends AsyncTask<HttpCall, String, String>{
 
     public HttpRequests(Activity activity){
         dialog = new ProgressDialog(activity);
+        dialog.setCancelable(false);
     }
     @Override
     protected void onPreExecute() {
