@@ -23,20 +23,7 @@ public class Utils {
     public String FORGETREQUESTAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword/Request";
     public String FORGETAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword";
 
-
-    public String removeResponse(String payload){
-        JSONObject payloadObj;
-        try {
-            payloadObj = new JSONObject(payload);
-            payloadObj.remove("respond");
-
-            return payloadObj.toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-
-    }
+    
 
     public Payload generatePayload (String url) {
 
@@ -47,7 +34,7 @@ public class Utils {
     }
 
     public String generateToken(String str, String issuer){
-        Map<String, Object> headerClaims = new HashMap();
+              Map<String, Object> headerClaims = new HashMap();
         headerClaims.put("alg", "RS256");
         headerClaims.put("typ", "JWT");
         Payload payload = generatePayload(issuer);
