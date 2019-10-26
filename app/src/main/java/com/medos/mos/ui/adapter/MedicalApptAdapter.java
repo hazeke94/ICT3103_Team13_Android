@@ -61,17 +61,11 @@ public class MedicalApptAdapter extends RecyclerView.Adapter<MedicalApptAdapter.
             holder.cardViewAppt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //completed with summary will redirect to book appointment with intent summary id
-                    if(appt.getStatus().equals("Completed")){
+                    //navigate to appointment Details
+                    Intent appointmentIntent = new Intent(context, MedicalAppointmentDetail.class);
+                    appointmentIntent.putExtra("appointment", appt);
+                    context.startActivity(appointmentIntent);
 
-                    }
-                    //pending/approved/rejected will be brought to detail
-                    else{
-                        //navigate to appointment Details
-                        Intent appointmentIntent = new Intent(context, MedicalAppointmentDetail.class);
-                        appointmentIntent.putExtra("appointment", appt);
-                        context.startActivity(appointmentIntent);
-                    }
                 }
             });
         }

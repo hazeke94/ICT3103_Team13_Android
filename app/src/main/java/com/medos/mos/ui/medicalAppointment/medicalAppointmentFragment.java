@@ -1,23 +1,20 @@
 package com.medos.mos.ui.medicalAppointment;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -26,15 +23,13 @@ import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
-import com.medos.mos.appointmentDateFragment;
+import com.medos.mos.MedicalappointmentDateFragment;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
-import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
@@ -61,8 +56,19 @@ public class medicalAppointmentFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_medical_appointment, container, false);
         fabAppointment = root.findViewById(R.id.btnAppointment);
         rvMedAppt = root.findViewById(R.id.recyclerViewMedicalAppointment);
-
-
+        final SwipeRefreshLayout swipeRefreshLayout = root.findViewById(R.id.MedicalSwipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                        retrieveAppointmentDate();
+                    }
+                },1000);
+            }
+        });
 
 
 
@@ -76,7 +82,7 @@ public class medicalAppointmentFragment extends Fragment {
         fabAppointment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment frag = new appointmentDateFragment();
+                Fragment frag = new MedicalappointmentDateFragment();
 
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 ft.replace(R.id.nav_host_fragment, frag);
@@ -148,6 +154,7 @@ public class medicalAppointmentFragment extends Fragment {
 
                                     MedicalAppointment appt = new MedicalAppointment(json.getString("MedicalAppointmentDate"), json.getString("MedicalAppointmentNotes"), json.getString("MedicalAppointmentBookingHours"), 0);
                                     appt.setStatus(json.getString("MedicalAppointmentStatus"));
+                                    appt.setMedicalID(json.getInt("MedicalAppointmentId"));
                                     mAppt.add(appt);
                                     Log.d(TAG, json.getString("MedicalAppointmentDate"));
                                     Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
