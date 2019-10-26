@@ -1,7 +1,9 @@
 package com.medos.mos;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -39,7 +41,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class appointmentDateFragment extends Fragment {
+public class MedicalappointmentDateFragment extends Fragment {
 
     Button btnDatePicker, btnTimePicker;
     EditText txtDate, txtTime;
@@ -133,7 +135,7 @@ public class appointmentDateFragment extends Fragment {
             HttpCall httpCallPost = new HttpCall();
             httpCallPost.setHeader(token);
             httpCallPost.setMethodtype(HttpCall.GET);
-            httpCallPost.setUrl(util.AvailableSlotsGETURL);
+            httpCallPost.setUrl(util.AvailableMedicalSlotsGETURL);
 
             httpCallPost.setParams(appointment);
 
@@ -193,10 +195,6 @@ public class appointmentDateFragment extends Fragment {
             e.printStackTrace();
         }
 
-
-    }
-
-    public void bookAppointment(){
 
     }
 

@@ -15,15 +15,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
-import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
-import com.medos.mos.appointmentDateFragment;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.medicalAppointment.medicalAppointmentFragment;

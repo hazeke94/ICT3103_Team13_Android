@@ -54,7 +54,12 @@ public class HttpRequests extends AsyncTask<HttpCall, String, String>{
                 if(httpCall.getParams()!= null){
                     Log.d(TAG,"not null");
                     JSONObject obj = new JSONObject(httpCall.getParams().toString());
-                    dataParams = obj.getString("StartDate");
+                    if(obj.has("StartDate")) {
+                        dataParams = obj.getString("StartDate");
+                    }
+                    else if(obj.has("MedicalBookingID")){
+                        dataParams = obj.getString("MedicalBookingID");
+                    }
                 }
 
             }

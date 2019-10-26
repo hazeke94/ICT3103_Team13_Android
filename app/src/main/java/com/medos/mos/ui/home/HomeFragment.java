@@ -34,7 +34,9 @@ import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class HomeFragment extends Fragment {
 
@@ -42,8 +44,14 @@ public class HomeFragment extends Fragment {
     Utils util;
     SharedPreferences pref;
     ArrayList<MedicalAppointment> mAppt = new ArrayList<>();
+    ArrayList<MedicalAppointment> mPickUp = new ArrayList<>();
     RecyclerView rvUpcoming, rvPickUp;
     MedicalApptAdapter adapter;
+    MedicalApptAdapter pickUpAdapter;
+    int year1 = 0;
+    int month1 = 0;
+    int day1 = 0;
+
     private String TAG = "homeFragment";
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -73,6 +81,19 @@ public class HomeFragment extends Fragment {
     }
 
     public void getCurrentAppointment(){
+        Calendar c1 = null;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            c1 = Calendar.getInstance();
+            c1.set(Calendar.DAY_OF_WEEK, 1);
+
+            //first day of week
+            year1 = c1.get(Calendar.YEAR);
+            month1 = c1.get(Calendar.MONTH)+1;
+            day1 = c1.get(Calendar.DAY_OF_MONTH);
+        }
+
+
         String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setHeader(token);
@@ -112,19 +133,36 @@ public class HomeFragment extends Fragment {
 
                                 MedicalAppointment appt = new MedicalAppointment(json.getString("MedicalAppointmentDate"), json.getString("MedicalAppointmentNotes"), json.getString("MedicalAppointmentBookingHours"), 0);
                                 appt.setStatus(json.getString("MedicalAppointmentStatus"));
-                                if(json.getString("MedicalAppointmentDate").equals(date))
-                                mAppt.add(appt);
-                                Log.d(TAG, json.getString("MedicalAppointmentDate"));
-                                Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
-                                Log.d(TAG, json.getString("MedicalAppointmentNotes"));
+                                appt.setMedicalID(json.getInt("MedicalAppointmentId"));
+
+                                if(checkDate(appt.getMedicalAppointmentDate(), date)){
+                                    if(appt.getStatus().equals("Pending") || appt.getStatus().equals("Confirmed")) {
+                                        mAppt.add(appt);
+                                        Log.d(TAG, json.getString("MedicalAppointmentDate"));
+                                        Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
+                                        Log.d(TAG, json.getString("MedicalAppointmentNotes"));
+                                    }
+                                    if(checkDate(appt.getMedicalAppointmentDate(), date) && appt.getStatus().equals("Collection of Medicine")){
+                                        mPickUp.add(appt);
+                                        Log.d(TAG, json.getString("MedicalAppointmentDate"));
+                                        Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
+                                        Log.d(TAG, json.getString("MedicalAppointmentNotes"));
+                                    }
+                                }
+
                             }
                         }
-                        if (mAppt.size() != 0) {
+                        if (mAppt.size() != 0 || mPickUp.size() != 0) {
                             //throw into adapter to show list of appt
                             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                             rvUpcoming.setLayoutManager(layoutManager);
                             adapter = new MedicalApptAdapter(mAppt, getActivity());
                             rvUpcoming.setAdapter(adapter);
+
+//                            LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
+//                            rvPickUp.setLayoutManager(layoutManager1);
+//                            pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
+//                            rvUpcoming.setAdapter(adapter);
                         }
 
                     }
@@ -134,5 +172,37 @@ public class HomeFragment extends Fragment {
 
             }
         }.execute(httpCallPost);
+    }
+
+    private boolean checkDate(String date, String today) {
+        SimpleDateFormat sdf = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            //sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf = new SimpleDateFormat("dd/MM/yyyy");
+            try {
+                Date date1 = sdf.parse(date);
+                Date date2 = sdf.parse(today);
+
+                if(date1.after(date2)){
+                    System.out.println("Date1 is after Date2");
+                    return true;
+                }
+
+                //equals() returns true if both the dates are equal
+                else if(date1.equals(date2)){
+                    System.out.println("Date1 is equal Date2");
+                    return true;
+                }
+                else{
+                    return false;
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return false;
+
     }
 }
