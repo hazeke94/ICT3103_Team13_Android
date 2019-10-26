@@ -33,8 +33,12 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 
-
 public class LoginActivity extends AppCompatActivity {
+    private static final String KEYSTORE = "AndroidKeyStore";
+    private static final String ALIAS = "userSession";
+    private static final String TYPE_RSA = "RSA";
+    private static final String CYPHER = "RSA/ECB/PKCS1Padding";
+    private static final String ENCODING = "UTF-8";
     private static final String TAG = "LoginActivity";
     Utils util;
     HashMap<String, String> params = new HashMap<>();

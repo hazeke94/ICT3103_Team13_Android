@@ -23,7 +23,7 @@ public class Utils {
     public String FORGETREQUESTAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword/Request";
     public String FORGETAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword";
 
-    
+
 
     public Payload generatePayload (String url) {
 

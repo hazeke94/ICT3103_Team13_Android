@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -18,6 +19,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.navigation.NavigationView;
 import com.medos.mos.ui.login.LoginActivity;
+import com.medos.mos.ui.login.OTPActivity;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     SharedPreferences pref;
+    OTPActivity otp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("sessionToken", null);
         editor.putString("Phone", null);
         editor.putString("Password", null);
-        editor.putLong("LoginTimeStamp", 0);
+        editor.putString("LoginTimeStamp", null);
         editor.commit();
 
         Intent loginIntent = new Intent(this, LoginActivity.class);
@@ -97,10 +101,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        //get current time
+        //get current time
         Long timestamp = System.currentTimeMillis() / 1000;
-        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
-        Long difference = timestamp - loginStamp;
+        String loginStamp = otp.decryptString(this, pref.getString("LoginTimeStamp", ""));
+        Long final_loginStamp = Long.valueOf(loginStamp);
+
+        Log.d("TEST", "Login Stamp: " + final_loginStamp);
+
+        Long difference = timestamp - final_loginStamp;
         if(difference >= 900000){
             logoutUser();
         }

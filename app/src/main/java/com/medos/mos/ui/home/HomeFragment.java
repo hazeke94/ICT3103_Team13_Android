@@ -28,6 +28,7 @@ import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,6 +46,7 @@ public class HomeFragment extends Fragment {
     RecyclerView rvUpcoming, rvPickUp;
     MedicalApptAdapter adapter;
     private String TAG = "homeFragment";
+    OTPActivity otp;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
@@ -73,7 +75,7 @@ public class HomeFragment extends Fragment {
     }
 
     public void getCurrentAppointment(){
-        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(getContext(), pref.getString("sessionToken", "")));
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setHeader(token);
         httpCallPost.setMethodtype(HttpCall.GET);

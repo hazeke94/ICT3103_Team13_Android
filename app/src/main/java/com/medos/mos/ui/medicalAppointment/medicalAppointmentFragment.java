@@ -32,6 +32,7 @@ import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
 import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,7 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class medicalAppointmentFragment extends Fragment {
-
+    OTPActivity otp;
     FloatingActionButton fabAppointment;
     RecyclerView rvMedAppt;
     ArrayList<MedicalAppointment> mAppt = new ArrayList<>();
@@ -54,6 +55,7 @@ public class medicalAppointmentFragment extends Fragment {
     SharedPreferences pref;
     String TAG = "medicalApptFrag";
     MedicalApptAdapter adapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -61,10 +63,6 @@ public class medicalAppointmentFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_medical_appointment, container, false);
         fabAppointment = root.findViewById(R.id.btnAppointment);
         rvMedAppt = root.findViewById(R.id.recyclerViewMedicalAppointment);
-
-
-
-
 
         util = new Utils();
         pref = getActivity().getSharedPreferences("Session", 0); // 0 - for private mode
@@ -112,7 +110,7 @@ public class medicalAppointmentFragment extends Fragment {
                     .withClaim("iss", payload.getIss())
                     .withClaim("exp", payload.getEx())
                     .withClaim("iat", payload.getIat())
-                    .withClaim("token", pref.getString("sessionToken", ""))
+                    .withClaim("token", otp.decryptString(getContext(), pref.getString("sessionToken", "")))
                     .sign(algorithm);
             Log.d(TAG, token);
 
