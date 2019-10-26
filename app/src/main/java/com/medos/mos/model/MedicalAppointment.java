@@ -7,6 +7,7 @@ public class MedicalAppointment implements Parcelable {
     String medicalAppointmentDate,medicalAppointmentNotes;
     String medicalAppointmentBookingHours;
     int medicalBookHourID;
+    int medicalID;
     String status;
 
     public MedicalAppointment(String medicalAppointmentDate, String medicalAppointmentNotes, String medicalAppointmentBookingHours, int medicalBookHourID) {
@@ -15,6 +16,7 @@ public class MedicalAppointment implements Parcelable {
         this.medicalAppointmentBookingHours = medicalAppointmentBookingHours;
         this.medicalBookHourID = medicalBookHourID;
         this.status = "";
+        this.medicalID = 0;
     }
 
     protected MedicalAppointment(Parcel in) {
@@ -23,6 +25,7 @@ public class MedicalAppointment implements Parcelable {
         medicalAppointmentBookingHours = in.readString();
         medicalBookHourID = in.readInt();
         status = in.readString();
+        medicalID = in.readInt();
     }
 
     public static final Creator<MedicalAppointment> CREATOR = new Creator<MedicalAppointment>() {
@@ -82,6 +85,14 @@ public class MedicalAppointment implements Parcelable {
         return 0;
     }
 
+    public int getMedicalID() {
+        return medicalID;
+    }
+
+    public void setMedicalID(int medicalID) {
+        this.medicalID = medicalID;
+    }
+
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(medicalAppointmentDate);
@@ -89,11 +100,13 @@ public class MedicalAppointment implements Parcelable {
         parcel.writeString(medicalAppointmentBookingHours);
         parcel.writeInt(medicalBookHourID);
         parcel.writeString(status);
+        parcel.writeInt(medicalID);
     }
 
     @Override
     public String toString() {
         return "MedicalAppointment{" +
+                "medicalID='" + medicalID + '\'' +
                 "medicalAppointmentDate='" + medicalAppointmentDate + '\'' +
                 ", medicalAppointmentNotes='" + medicalAppointmentNotes + '\'' +
                 ", medicalAppointmentBookingHours='" + medicalAppointmentBookingHours + '\'' +

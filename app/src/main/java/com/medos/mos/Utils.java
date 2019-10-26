@@ -16,12 +16,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Utils {
+
+    //Login
     public String LOGINAPIURL = "https://ict3103api.azurewebsites.net/api/Login";
     public String OTPAPIURL = "https://ict3103api.azurewebsites.net/api/Otp";
-    public String AvailableSlotsGETURL = "https://ict3103api.azurewebsites.net/api/ClinicBookingHours/MedicalAppointment?StartDate=";
+
+    //Clinic Booking Appointment
+    public String AvailableMedicineSlotsGetURL = "https://ict3103api.azurewebsites.net/api/ClinicBookingHours/MedicineAppointment?StartDate=";
+    public String AvailableMedicalSlotsGETURL = "https://ict3103api.azurewebsites.net/api/ClinicBookingHours/MedicalAppointment?StartDate=";
+
+    //Medical Appointment
     public String MEDICALAPPTURL = "https://ict3103api.azurewebsites.net/api/MedicalAppointment";
+    public String CancelMedicalAppt = "https://ict3103api.azurewebsites.net/api/MedicalAppointment/cancel/";
+
+    //Medicine Appointment
+    public String MEDICINEAPPTURL = "https://ict3103api.azurewebsites.net/api/MedicineAppointment";
+    public String MEDICINEAPPTREQUEST = "/api/MedicineAppointment/request";
+
+    //Forget Password
     public String FORGETREQUESTAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword/Request";
     public String FORGETAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword";
+
 
 
     public String removeResponse(String payload){

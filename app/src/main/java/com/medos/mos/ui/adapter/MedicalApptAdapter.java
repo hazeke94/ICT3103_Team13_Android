@@ -46,20 +46,32 @@ public class MedicalApptAdapter extends RecyclerView.Adapter<MedicalApptAdapter.
             final MedicalAppointment appt = mAppt.get(position);
             holder.tvDate.setText(appt.getMedicalAppointmentDate());
             holder.tvHours.setText(appt.getMedicalAppointmentBookingHours());
-            if(appt.getStatus().equals("1")){
+            if(appt.getStatus().equals("Pending")){
                 holder.IVStatus.setImageResource(R.drawable.icon_pending);
             }
+            else if(appt.getStatus().equals("Approved")){
+                holder.IVStatus.setImageResource(R.drawable.icons_approved);
+            }
+            else if(appt.getStatus().equals("Completed")){
+                holder.IVStatus.setImageResource(R.drawable.icons_completed);
+            }
             else{
-                holder.IVStatus.setImageResource(R.drawable.icon_pending);
+                holder.IVStatus.setImageResource(R.drawable.icon_rejected);
             }
             holder.cardViewAppt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //navigate to appointment Details
-                    Intent appointmentIntent = new Intent(context, MedicalAppointmentDetail.class);
-                    appointmentIntent.putExtra("appointment", appt);
-                    context.startActivity(appointmentIntent);
+                    //completed with summary will redirect to book appointment with intent summary id
+                    if(appt.getStatus().equals("Completed")){
 
+                    }
+                    //pending/approved/rejected will be brought to detail
+                    else{
+                        //navigate to appointment Details
+                        Intent appointmentIntent = new Intent(context, MedicalAppointmentDetail.class);
+                        appointmentIntent.putExtra("appointment", appt);
+                        context.startActivity(appointmentIntent);
+                    }
                 }
             });
         }
