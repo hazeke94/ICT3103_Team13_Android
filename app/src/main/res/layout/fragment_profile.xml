@@ -180,48 +180,31 @@
                                     android:orientation="horizontal"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content">
-                                    <EditText
-                                        android:id="@+id/edAge"
+                                    <TextView
+                                        android:text="Age :"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"/>
                                 </LinearLayout>
                                 <LinearLayout
+                                        android:orientation="horizontal"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content">
+                                        <EditText
+                                            android:id="@+id/edAge"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"/>
+                                 </LinearLayout>
+                                 <LinearLayout
                                     android:orientation="horizontal"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content">
-                                    <EditText
-                                        android:id="@+id/edGender"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"/>
-                                </LinearLayout>
-                                <LinearLayout
-                                    android:orientation="horizontal"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content">
-                                    <EditText
-                                        android:id="@+id/edBT"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"/>
-                                </LinearLayout>
-                                <LinearLayout
-                                    android:orientation="horizontal"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content">
-                                    <EditText
-                                        android:id="@+id/edAllergies"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"/>
-                                </LinearLayout>
-                                <LinearLayout
-                                    android:orientation="horizontal"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content">
-                                    <EditText
-                                        android:id="@+id/edDOB"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"/>
-                                </LinearLayout>
-                                <LinearLayout
+                                    <TextView
+                                         android:text="Address :"
+                                         android:layout_width="match_parent"
+                                         android:layout_height="wrap_content"/>
+                                 </LinearLayout>
+
+                                 <LinearLayout
                                     android:orientation="horizontal"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content">
@@ -240,6 +223,32 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"/>
                                 </LinearLayout>
+                                    <LinearLayout
+                                        android:orientation="horizontal"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content">
+                                        <Button
+                                            android:id="@+id/btnCancelProfile"
+                                            android:text="Cancel"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"/>
+                                    </LinearLayout>
+                                </LinearLayout>
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="1dp"
+                                    android:layout_marginTop="@dimen/layout_5"
+                                    android:layout_marginBottom="@dimen/layout_5"
+                                    android:background="@color/pink" />
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+                                    <Button
+                                        android:id="@+id/btnProfile"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="Edit"
+                                       />
                                 </LinearLayout>
 
                             </LinearLayout>
