@@ -32,6 +32,7 @@ public class Utils {
     //Medicine Appointment
     public String MEDICINEAPPTURL = "https://ict3103api.azurewebsites.net/api/MedicineAppointment";
     public String MEDICINEAPPTREQUEST = "/api/MedicineAppointment/request";
+    public String MEDICINEAPPTBOOK = "https://ict3103api.azurewebsites.net/api/MedicineAppointment/";
 
     //Forget Password
     public String FORGETREQUESTAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword/Request";

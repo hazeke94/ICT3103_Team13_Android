@@ -65,7 +65,6 @@ public class MedicalApptAdapter extends RecyclerView.Adapter<MedicalApptAdapter.
                     Intent appointmentIntent = new Intent(context, MedicalAppointmentDetail.class);
                     appointmentIntent.putExtra("appointment", appt);
                     context.startActivity(appointmentIntent);
-
                 }
             });
         }
