@@ -168,20 +168,28 @@ public class LoginActivity extends AppCompatActivity {
                                     Log.d(TAG, "JWT response: " + response);
                                     try {
                                         String[] tokenResponse = JWTUtils.decoded(response);
-                                        JSONObject obj = new JSONObject(tokenResponse[1]);
+                                        final DecodedJWT decodedJWT = JWT.decode(response);
+                                        if(JWTUtils.verifySignature(getResources().getString(R.string.SPK), decodedJWT))
+                                        {
+                                            JSONObject obj = new JSONObject(tokenResponse[1]);
 
-                                        String result = obj.getString("respond");
-                                        Log.d(TAG, result);
+                                            String result = obj.getString("respond");
+                                            Log.d(TAG, result);
 
-                                        JSONObject respond = new JSONObject(result);
-                                        if(respond.getString("Success").equals("true")){
-                                            Intent intent = new Intent(LoginActivity.this, ForgetPassword.class);
-                                            intent.putExtra("phone", input.getText().toString());
-                                            startActivity(intent);
+                                            JSONObject respond = new JSONObject(result);
+                                            if(respond.getString("Success").equals("true")){
+                                                Intent intent = new Intent(LoginActivity.this, ForgetPassword.class);
+                                                intent.putExtra("phone", input.getText().toString());
+                                                startActivity(intent);
+                                            }
+                                            else{
+                                                Toast.makeText(LoginActivity.this, "Error in requesting for reset", Toast.LENGTH_LONG).show();
+                                            }
                                         }
                                         else{
-                                            Toast.makeText(LoginActivity.this, "Error in requesting for reset", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(LoginActivity.this, "Invalid Signature", Toast.LENGTH_LONG).show();
                                         }
+
 
                                     } catch (Exception e) {
                                         e.printStackTrace();

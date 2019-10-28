@@ -14,6 +14,7 @@
         <activity android:name=".ui.medicineAppointment.MedicineAppointmentDetail"></activity>
         <activity android:name=".ui.login.ForgetPassword" />
         <activity android:name=".ui.medicalAppointment.MedicalAppointmentDetail" />
+        <activity android:name=".AppointmentDateActivity" />
         <activity android:name=".ui.login.OTPActivity" />
         <activity android:name=".ui.login.LoginActivity">
             <intent-filter>

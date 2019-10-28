@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
@@ -21,6 +22,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.R;
@@ -28,6 +31,7 @@ import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
+import com.medos.mos.ui.login.LoginActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -62,7 +66,7 @@ public class HomeFragment extends Fragment {
         rvUpcoming = root.findViewById(R.id.rvUpcoming_Appt);
         rvPickUp = root.findViewById(R.id.rvPickUpMedication);
         //get current appointment
-        getCurrentAppointment();
+
 
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -107,65 +111,73 @@ public class HomeFragment extends Fragment {
                 Log.d(TAG, "JWT response: " + response);
                 String[] tokenResponse = new String[2];
                 try {
-                    tokenResponse = JWTUtils.decoded(response);
-                    JSONObject obj = new JSONObject(tokenResponse[1]);
-                    Log.d(TAG, obj.getString("respond"));
-                    String result = obj.getString("respond");
-                    JSONObject respond = new JSONObject(result);
+                    final DecodedJWT decodedJWT = JWT.decode(response);
+                    if(JWTUtils.verifySignature(getResources().getString(R.string.SPK), decodedJWT)){
+                        tokenResponse = JWTUtils.decoded(response);
+                        JSONObject obj = new JSONObject(tokenResponse[1]);
+                        Log.d(TAG, obj.getString("respond"));
+                        String result = obj.getString("respond");
+                        JSONObject respond = new JSONObject(result);
 
-                    if (respond.getString("Success").equals("true")) {
-                        //get list of dates
-                        mAppt = new ArrayList<>();
-                        JSONArray appointmentList = respond.getJSONArray("Respond");
-                        int length = appointmentList.length();
-                        Log.d(TAG, String.valueOf(length));
-                        if(length !=0) {
-                            Calendar calendar = null;
-                            String date = "";
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                                calendar = Calendar.getInstance();
-                                SimpleDateFormat mdformat = new SimpleDateFormat("dd/MM/yyyy");
-                                date =mdformat.format(calendar.getTime());
-                            }
+                        if (respond.getString("Success").equals("true")) {
+                            //get list of dates
+                            mAppt = new ArrayList<>();
+                            mPickUp = new ArrayList<>();
+                            JSONArray appointmentList = respond.getJSONArray("Respond");
+                            int length = appointmentList.length();
+                            Log.d(TAG, String.valueOf(length));
+                            if(length !=0) {
+                                Calendar calendar = null;
+                                String date = "";
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                                    calendar = Calendar.getInstance();
+                                    SimpleDateFormat mdformat = new SimpleDateFormat("dd/MM/yyyy");
+                                    date =mdformat.format(calendar.getTime());
+                                }
 
-                            for (int i = 0; i < length; i++) {
-                                JSONObject json = appointmentList.getJSONObject(i);
+                                for (int i = 0; i < length; i++) {
+                                    JSONObject json = appointmentList.getJSONObject(i);
 
-                                MedicalAppointment appt = new MedicalAppointment(json.getString("MedicalAppointmentDate"), json.getString("MedicalAppointmentNotes"), json.getString("MedicalAppointmentBookingHours"), 0);
-                                appt.setStatus(json.getString("MedicalAppointmentStatus"));
-                                appt.setMedicalID(json.getInt("MedicalAppointmentId"));
+                                    MedicalAppointment appt = new MedicalAppointment(json.getString("MedicalAppointmentDate"), json.getString("MedicalAppointmentNotes"), json.getString("MedicalAppointmentBookingHours"), 0);
+                                    appt.setStatus(json.getString("MedicalAppointmentStatus"));
+                                    appt.setMedicalID(json.getInt("MedicalAppointmentId"));
 
-                                if(checkDate(appt.getMedicalAppointmentDate(), date)){
-                                    if(appt.getStatus().equals("Pending") || appt.getStatus().equals("Confirmed")) {
-                                        mAppt.add(appt);
-                                        Log.d(TAG, json.getString("MedicalAppointmentDate"));
-                                        Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
-                                        Log.d(TAG, json.getString("MedicalAppointmentNotes"));
+                                    if(checkDate(appt.getMedicalAppointmentDate(), date)){
+                                        if(appt.getStatus().equals("Pending") || appt.getStatus().equals("Confirmed")) {
+                                            mAppt.add(appt);
+                                            Log.d(TAG, json.getString("MedicalAppointmentDate"));
+                                            Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
+                                            Log.d(TAG, json.getString("MedicalAppointmentNotes"));
+                                        }
                                     }
-                                    if(checkDate(appt.getMedicalAppointmentDate(), date) && appt.getStatus().equals("Collection of Medicine")){
+                                    if(appt.getStatus().equals("Collection of Medicine")){
                                         mPickUp.add(appt);
                                         Log.d(TAG, json.getString("MedicalAppointmentDate"));
                                         Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
                                         Log.d(TAG, json.getString("MedicalAppointmentNotes"));
                                     }
+
                                 }
-
                             }
-                        }
-                        if (mAppt.size() != 0 || mPickUp.size() != 0) {
-                            //throw into adapter to show list of appt
-                            LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-                            rvUpcoming.setLayoutManager(layoutManager);
-                            adapter = new MedicalApptAdapter(mAppt, getActivity());
-                            rvUpcoming.setAdapter(adapter);
+                            if (mAppt.size() != 0 || mPickUp.size() != 0) {
+                                //throw into adapter to show list of appt
+                                LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                                rvUpcoming.setLayoutManager(layoutManager);
+                                adapter = new MedicalApptAdapter(mAppt, getActivity());
+                                rvUpcoming.setAdapter(adapter);
 
-//                            LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
-//                            rvPickUp.setLayoutManager(layoutManager1);
-//                            pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
-//                            rvUpcoming.setAdapter(adapter);
-                        }
+                            LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
+                            rvPickUp.setLayoutManager(layoutManager1);
+                            pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
+                                rvPickUp.setAdapter(pickUpAdapter);
+                            }
 
+                        }
                     }
+                    else{
+                        Toast.makeText(getContext(), "Invalid Signature", Toast.LENGTH_LONG).show();
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -204,5 +216,11 @@ public class HomeFragment extends Fragment {
         }
         return false;
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getCurrentAppointment();
     }
 }

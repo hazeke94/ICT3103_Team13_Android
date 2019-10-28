@@ -70,13 +70,11 @@ public class medicalAppointmentFragment extends Fragment {
             }
         });
 
-
-
         util = new Utils();
         pref = getActivity().getSharedPreferences("Session", 0); // 0 - for private mode
 
         //call method to get medical appointment
-        retrieveAppointmentDate();
+        //retrieveAppointmentDate();
 
         //request appointment
         fabAppointment.setOnClickListener(new View.OnClickListener() {
@@ -182,5 +180,11 @@ public class medicalAppointmentFragment extends Fragment {
         } catch (InvalidKeySpecException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        retrieveAppointmentDate();
     }
 }

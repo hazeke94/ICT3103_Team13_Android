@@ -148,12 +148,22 @@
 
                                 <Button
                                     android:id="@+id/btnCancelAppt"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:background="@color/pink"
                                     android:text="Cancel"
                                     android:onClick="cancelAppt"
                                     android:textColor="@color/mdtp_white" />
+
+                                <Button
+                                    android:id="@+id/btnBookMedicinePickup"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:background="@color/green"
+                                    android:text="Book PickUp"
+                                    android:onClick="bookPickUp"
+                                    android:textColor="@color/mdtp_white"
+                                    android:visibility="gone"/>
 
                             </LinearLayout>
 
