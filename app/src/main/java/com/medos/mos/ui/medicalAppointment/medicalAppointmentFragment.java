@@ -15,12 +15,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
+import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.MedicalappointmentDateFragment;
@@ -167,6 +169,14 @@ public class medicalAppointmentFragment extends Fragment {
                                 rvMedAppt.setAdapter(adapter);
                             }
 
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+                            if(respond.getString("Error").equals("Invalid Token")){
+                                //log user out
+                                MainActivity a = new MainActivity();
+                                a.logoutUser();
+                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

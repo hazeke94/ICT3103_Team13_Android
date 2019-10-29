@@ -20,6 +20,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.medos.mos.AppointmentDateActivity;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
+import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
@@ -116,8 +117,13 @@ public class MedicalAppointmentDetail extends AppCompatActivity {
                                         if (respond.getString("Success").equals("true")) {
                                             //store in sharedpreference
                                             finish();
-                                        } else {
-                                            Toast.makeText(MedicalAppointmentDetail.this, "Error : " + respond.getString("Errro"), Toast.LENGTH_SHORT).show();
+                                        } else{
+                                            Toast.makeText(getApplicationContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+                                            if(respond.getString("Error").equals("Invalid Token")){
+                                                //log user out
+                                                MainActivity a = new MainActivity();
+                                                a.logoutUser();
+                                            }
                                         }
                                     }
                                     else{

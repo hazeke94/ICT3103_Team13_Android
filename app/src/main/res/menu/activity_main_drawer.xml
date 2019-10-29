@@ -13,6 +13,9 @@
         <item
             android:id="@+id/nav_medical"
             android:title="@string/menu_medical" />
+        <item
+            android:id="@+id/nav_medicine"
+            android:title="@string/menu_medicine" />
 
     </group>
 

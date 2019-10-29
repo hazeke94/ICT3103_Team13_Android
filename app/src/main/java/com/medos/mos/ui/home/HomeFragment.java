@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -26,6 +27,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
+import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
@@ -103,7 +105,7 @@ public class HomeFragment extends Fragment {
         httpCallPost.setHeader(token);
         httpCallPost.setMethodtype(HttpCall.GET);
         httpCallPost.setUrl(util.MEDICALAPPTURL);
-        Activity activity = (Activity) getContext();
+        final Activity activity = (Activity) getContext();
         new HttpRequests(activity) {
             @Override
             public void onResponse(String response) {
@@ -129,7 +131,7 @@ public class HomeFragment extends Fragment {
                             if(length !=0) {
                                 Calendar calendar = null;
                                 String date = "";
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                     calendar = Calendar.getInstance();
                                     SimpleDateFormat mdformat = new SimpleDateFormat("dd/MM/yyyy");
                                     date =mdformat.format(calendar.getTime());
@@ -172,6 +174,14 @@ public class HomeFragment extends Fragment {
                                 rvPickUp.setAdapter(pickUpAdapter);
                             }
 
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+                            if(respond.getString("Error").equals("Invalid Token")){
+                                //log user out
+                                MainActivity a = new MainActivity();
+                                a.logoutUser();
+                            }
                         }
                     }
                     else{

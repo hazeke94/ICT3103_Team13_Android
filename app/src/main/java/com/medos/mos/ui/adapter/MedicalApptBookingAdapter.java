@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
+import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
@@ -111,6 +113,14 @@ public class MedicalApptBookingAdapter extends RecyclerView.Adapter<MedicalApptB
                                                 AppCompatActivity a = (AppCompatActivity) context;
                                                 a.getSupportFragmentManager().popBackStack();
 
+                                            }
+                                            else{
+                                                Toast.makeText(context, "Session Timeout", Toast.LENGTH_SHORT).show();
+                                                if(respond.getString("Error").equals("Invalid Token")){
+                                                    //log user out
+                                                    MainActivity a = new MainActivity();
+                                                    a.logoutUser();
+                                                }
                                             }
 
 
