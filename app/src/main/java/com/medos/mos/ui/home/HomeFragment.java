@@ -79,11 +79,89 @@ public class HomeFragment extends Fragment {
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
                         getCurrentAppointment();
+                        getMedicationAppointment();
                     }
                 },1000);
             }
         });
         return root;
+    }
+
+    private void getMedicationAppointment() {
+        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+        HttpCall httpCallPost = new HttpCall();
+        httpCallPost.setHeader(token);
+        httpCallPost.setMethodtype(HttpCall.GET);
+        httpCallPost.setUrl(util.MEDICINEAPPTREQUEST);
+        final Activity activity = (Activity) getContext();
+        new HttpRequests(activity) {
+            @Override
+            public void onResponse(String response) {
+                super.onResponse(response);
+                Log.d(TAG, "JWT response: " + response);
+                String[] tokenResponse = new String[2];
+                try {
+                    final DecodedJWT decodedJWT = JWT.decode(response);
+                    if(JWTUtils.verifySignature(getResources().getString(R.string.SPK), decodedJWT)){
+                        tokenResponse = JWTUtils.decoded(response);
+                        JSONObject obj = new JSONObject(tokenResponse[1]);
+                        Log.d(TAG, obj.getString("respond"));
+                        String result = obj.getString("respond");
+                        JSONObject respond = new JSONObject(result);
+
+                        if (respond.getString("Success").equals("true")) {
+                            //get list of dates
+                            mAppt = new ArrayList<>();
+                            mPickUp = new ArrayList<>();
+                            JSONArray appointmentList = respond.getJSONArray("Respond");
+                            int length = appointmentList.length();
+                            Log.d(TAG, String.valueOf(length));
+                            if(length !=0) {
+                                Calendar calendar = null;
+                                String date = "";
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                    calendar = Calendar.getInstance();
+                                    SimpleDateFormat mdformat = new SimpleDateFormat("dd/MM/yyyy");
+                                    date =mdformat.format(calendar.getTime());
+                                }
+
+                                for (int i = 0; i < length; i++) {
+                                    JSONObject json = appointmentList.getJSONObject(i);
+
+                                    MedicalAppointment appt = new MedicalAppointment(json.getString("MedicalAppointmentDate"), json.getString("MedicalAppointmentNotes"), json.getString("MedicalAppointmentBookingHours"), 0);
+                                    appt.setStatus(json.getString("MedicalAppointmentStatus"));
+                                    appt.setMedicalID(json.getInt("MedicalAppointmentId"));
+                                    mPickUp.add(appt);
+                                }
+                            }
+//                            if (mPickUp.size() != 0) {
+                                //throw into adapter to show list of appt
+                            LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
+                            rvPickUp.setLayoutManager(layoutManager1);
+                            pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
+                            rvPickUp.setAdapter(pickUpAdapter);
+//                            }
+
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+                            if(respond.getString("Error").equals("Invalid Token")){
+                                //log user out
+                                MainActivity a = new MainActivity();
+                                a.logoutUser();
+                            }
+                        }
+                    }
+                    else{
+                        Toast.makeText(getContext(), "Invalid Signature", Toast.LENGTH_LONG).show();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }.execute(httpCallPost);
     }
 
     public void getCurrentAppointment(){
@@ -152,27 +230,27 @@ public class HomeFragment extends Fragment {
                                             Log.d(TAG, json.getString("MedicalAppointmentNotes"));
                                         }
                                     }
-                                    if(appt.getStatus().equals("Collection of Medicine")){
-                                        mPickUp.add(appt);
-                                        Log.d(TAG, json.getString("MedicalAppointmentDate"));
-                                        Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
-                                        Log.d(TAG, json.getString("MedicalAppointmentNotes"));
-                                    }
+//                                    if(appt.getStatus().equals("Collection of Medicine")){
+//                                        mPickUp.add(appt);
+//                                        Log.d(TAG, json.getString("MedicalAppointmentDate"));
+//                                        Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
+//                                        Log.d(TAG, json.getString("MedicalAppointmentNotes"));
+//                                    }
 
                                 }
                             }
-                            if (mAppt.size() != 0 || mPickUp.size() != 0) {
+//                            if (mAppt.size() != 0 || mPickUp.size() != 0) {
                                 //throw into adapter to show list of appt
                                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                                 rvUpcoming.setLayoutManager(layoutManager);
                                 adapter = new MedicalApptAdapter(mAppt, getActivity());
                                 rvUpcoming.setAdapter(adapter);
 
-                            LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
-                            rvPickUp.setLayoutManager(layoutManager1);
-                            pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
-                                rvPickUp.setAdapter(pickUpAdapter);
-                            }
+//                            LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
+//                            rvPickUp.setLayoutManager(layoutManager1);
+//                            pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
+//                                rvPickUp.setAdapter(pickUpAdapter);
+//                            }
 
                         }
                         else{
@@ -232,5 +310,21 @@ public class HomeFragment extends Fragment {
     public void onStart() {
         super.onStart();
         getCurrentAppointment();
+        getMedicationAppointment();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Long timestamp = System.currentTimeMillis() / 1000;
+        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
+        Long difference = timestamp - loginStamp;
+        Log.d(TAG,"timestamp "  + timestamp);
+        Log.d(TAG,"loginStamp "  + loginStamp);
+        Log.d(TAG,"Difference "  + difference);
+        if(difference >= 3600){
+            MainActivity a = new MainActivity();
+            a.logoutUser();
+        }
     }
 }

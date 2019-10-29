@@ -51,12 +51,13 @@ public class AppointmentDateActivity extends AppCompatActivity {
     String TAG = "AppointmentDateFragment";
     Utils util;
     SharedPreferences pref;
-
+    MedicalAppointment med_appt;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_appointment_date);
 
+        med_appt = getIntent().getParcelableExtra("appt");
         btnDatePicker= findViewById(R.id.btn_date);
         txtDate=findViewById(R.id.in_date);
         rvTimeSlot = findViewById(R.id.rvAppointmentSlots);
@@ -138,7 +139,7 @@ public class AppointmentDateActivity extends AppCompatActivity {
                                         JSONObject json = appointmentList.getJSONObject(i);
 
                                         //set SummaryID for mbooking of medicine appointment
-                                        MedicineAppointment appt = new MedicineAppointment(date, " ", json.getString("BookingHoursTime"), json.getInt("BookingHoursId"), 0, 0, "");
+                                        MedicineAppointment appt = new MedicineAppointment(date, med_appt.getMedicalAppointmentNotes(), json.getString("BookingHoursTime"), json.getInt("BookingHoursId"), 0, med_appt.getMedicalID(), "");
                                         medicineApptList.add(appt);
                                         Log.d(TAG, json.getString("BookingHoursId"));
                                         Log.d(TAG, json.getString("BookingHoursTime"));

@@ -22,6 +22,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
+import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
@@ -75,7 +76,7 @@ public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApp
                     final String date = appt.getMedicineAppointmentDate();
                     final String time = appt.getMedicinrAppointmentBookingHours();
                     final int timeID = appt.getMedicineBookHourID();
-                    Log.d(TAG, "SummaryID : " +appt.getSummaryID());
+                   // Log.d(TAG, "SummaryID : " +appt.getSummaryID());
 
                     //open dialog to confirm
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
@@ -92,57 +93,62 @@ public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApp
 
                             //POST Method to be implemented
                             try {
-                                appt_submit.put("medicalAppointmentDate", date);
-                                appt_submit.put("medicalAppointmentBookingHours", timeID);
-                                appt_submit.put("medicalAppointmentNotes", "Consultation");
+                                appt_submit.put("medicineAppointmentDate", date);
+                                appt_submit.put("medicineAppointmentBookingHours", timeID);
+                                appt_submit.put("medicineAppointmentNotes", "Pick Up Medication");
 
                                 HttpCall httpCallPost = new HttpCall();
                                 httpCallPost.setHeader(token);
                                 httpCallPost.setMethodtype(HttpCall.POST);
-                                httpCallPost.setUrl(util.MEDICINEAPPTBOOK + appt.getSummaryID());
+                                httpCallPost.setUrl(util.MEDICINEAPPTBOOK + appt.getMedicalID());
                                 httpCallPost.setParams(appt_submit);
 
-                                Log.d(TAG, "Post Request " + util.MEDICINEAPPTBOOK + appt.getSummaryID());
+                                Log.d(TAG, "Post Request " + util.MEDICINEAPPTBOOK + appt.getMedicalID());
 
                                 final Activity activity = (Activity) context;
-//                                new HttpRequests(activity) {
-//                                    @Override
-//                                    public void onResponse(String response) {
-//                                        super.onResponse(response);
-//                                        Log.d(TAG, "JWT response: " + response);
-//                                        try {
-//                                            final DecodedJWT decodedJWT = JWT.decode(response);
-//                                            if(JWTUtils.verifySignature(activity.getResources().getString(R.string.SPK), decodedJWT)) {
-//                                                String[] tokenResponse = JWTUtils.decoded(response);
-//                                                JSONObject obj = new JSONObject(tokenResponse[1]);
-//
-//                                                String result = obj.getString("respond");
-//                                                Log.d(TAG, result);
-//
-//                                                JSONObject respond = new JSONObject(result);
-//
-//                                                if (respond.getString("Success").equals("true")) {
-//                                                    //store in sharedpreference
-////                                                Fragment frag = new medicalAppointmentFragment();
-////                                                AppCompatActivity a = (AppCompatActivity) context;
-////                                                a.getSupportFragmentManager().popBackStack();
-////                                                activity.finish();
-//
-//                                                }
-//                                                else{
-//                                                    Toast.makeText(activity, "Booking Failed", Toast.LENGTH_SHORT).show();
-//                                                }
-//                                            }
-//                                            else{
-//                                                Toast.makeText(activity, "Invalid Signature", Toast.LENGTH_SHORT).show();
-//                                            }
-//                                        } catch (Exception e) {
-//                                            e.printStackTrace();
-//                                        }
-//
-//
-//                                    }
-//                                }.execute(httpCallPost);
+                                new HttpRequests(activity) {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        super.onResponse(response);
+                                        Log.d(TAG, "JWT response: " + response);
+                                        try {
+                                            final DecodedJWT decodedJWT = JWT.decode(response);
+                                            if(JWTUtils.verifySignature(activity.getResources().getString(R.string.SPK), decodedJWT)) {
+                                                String[] tokenResponse = JWTUtils.decoded(response);
+                                                JSONObject obj = new JSONObject(tokenResponse[1]);
+
+                                                String result = obj.getString("respond");
+                                                Log.d(TAG, result);
+
+                                                JSONObject respond = new JSONObject(result);
+
+                                                if (respond.getString("Success").equals("true")) {
+                                                    //store in sharedpreference
+//                                                Fragment frag = new medicalAppointmentFragment();
+//                                                AppCompatActivity a = (AppCompatActivity) context;
+//                                                a.getSupportFragmentManager().popBackStack();
+//                                                activity.finish();
+
+                                                }
+                                                else{
+                                                    Toast.makeText(context, "Session Timeout", Toast.LENGTH_SHORT).show();
+                                                    if(respond.getString("Error").equals("Invalid Token")){
+                                                        //log user out
+                                                        MainActivity a = new MainActivity();
+                                                        a.logoutUser();
+                                                    }
+                                                }
+                                            }
+                                            else{
+                                                Toast.makeText(activity, "Invalid Signature", Toast.LENGTH_SHORT).show();
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+
+
+                                    }
+                                }.execute(httpCallPost);
 
 
                             } catch (JSONException e) {

@@ -101,7 +101,8 @@ public class MainActivity extends AppCompatActivity {
         Long timestamp = System.currentTimeMillis() / 1000;
         Long loginStamp = pref.getLong("LoginTimeStamp", 0);
         Long difference = timestamp - loginStamp;
-        if(difference >= 900000){
+        if(difference >= 3600){
+
             logoutUser();
         }
     }

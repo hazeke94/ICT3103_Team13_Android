@@ -8,7 +8,7 @@ public class MedicineAppointment implements Parcelable {
     String medicineAppointmentBookingHours;
     int medicineBookHourID;
     int medicineID;
-    int summaryID;
+    int medicalID;
     String status;
 
     public MedicineAppointment(String medicineAppointmentDate, String medicineAppointmentNotes, String medicineAppointmentBookingHours, int medicineBookHourID, int medicineID, int summaryID, String status) {
@@ -17,7 +17,7 @@ public class MedicineAppointment implements Parcelable {
         this.medicineAppointmentBookingHours = medicineAppointmentBookingHours;
         this.medicineBookHourID = medicineBookHourID;
         this.medicineID = medicineID;
-        this.summaryID = summaryID;
+        this.medicalID = summaryID;
         this.status = status;
     }
 
@@ -27,7 +27,7 @@ public class MedicineAppointment implements Parcelable {
         medicineAppointmentBookingHours = in.readString();
         medicineBookHourID = in.readInt();
         status = in.readString();
-        summaryID = in.readInt();
+        medicalID = in.readInt();
     }
 
     public static final Creator<MedicineAppointment> CREATOR = new Creator<MedicineAppointment>() {
@@ -54,7 +54,7 @@ public class MedicineAppointment implements Parcelable {
         parcel.writeString(medicineAppointmentBookingHours);
         parcel.writeInt(medicineBookHourID);
         parcel.writeString(status);
-        parcel.writeInt(summaryID);
+        parcel.writeInt(medicalID);
     }
 
     public String getMedicineAppointmentDate() {
@@ -105,11 +105,11 @@ public class MedicineAppointment implements Parcelable {
         this.status = status;
     }
 
-    public int getSummaryID() {
-        return summaryID;
+    public int getMedicalID() {
+        return medicalID;
     }
 
-    public void setSummaryID(int summaryID) {
-        this.summaryID = summaryID;
+    public void setMedicalID(int medicalID) {
+        this.medicalID = medicalID;
     }
 }

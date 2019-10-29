@@ -19,8 +19,10 @@ import com.medos.mos.HttpRequests;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
+import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
+import com.medos.mos.ui.adapter.MedicineApptAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,11 +37,11 @@ import java.util.ArrayList;
 public class medicineAppointmentFragment extends Fragment {
 
     RecyclerView rvMedicineAppt;
-    ArrayList<MedicalAppointment> mAppt = new ArrayList<>();
+    ArrayList<MedicineAppointment> mAppt = new ArrayList<>();
     Utils util;
     SharedPreferences pref;
     String TAG = "medicineApptFrag";
-    MedicalApptAdapter adapter;
+    MedicineApptAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,9 +50,9 @@ public class medicineAppointmentFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_medicine_appointment, container, false);
         util = new Utils();
         pref = getActivity().getSharedPreferences("Session", 0); // 0 - for private mode
-
+        rvMedicineAppt = root.findViewById(R.id.recyclerViewMedicineAppointment);
         //call method to get medical appointment
-        //retrieveAppointmentDate();
+        retrieveAppointmentDate();
         return root;
     }
 
@@ -59,7 +61,7 @@ public class medicineAppointmentFragment extends Fragment {
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setHeader(token);
         httpCallPost.setMethodtype(HttpCall.GET);
-        httpCallPost.setUrl(util.MEDICALAPPTURL);
+        httpCallPost.setUrl(util.MEDICINEAPPTURL);
         Activity activity = (Activity) getContext();
         new HttpRequests(activity) {
             @Override
@@ -84,19 +86,18 @@ public class medicineAppointmentFragment extends Fragment {
                             for (int i = 0; i < length; i++) {
                                 JSONObject json = appointmentList.getJSONObject(i);
 
-                                MedicalAppointment appt = new MedicalAppointment(json.getString("MedicalAppointmentDate"), json.getString("MedicalAppointmentNotes"), json.getString("MedicalAppointmentBookingHours"), 0);
-                                appt.setStatus(json.getString("MedicalAppointmentStatus"));
+                                MedicineAppointment appt = new MedicineAppointment(json.getString("MedicineAppointmentDate"), json.getString("MedicineAppointmentNotes"), json.getString("MedicineAppointmentBookingHours"), 0,json.getInt("MedicineAppointmentId"),0,"");
                                 mAppt.add(appt);
-                                Log.d(TAG, json.getString("MedicalAppointmentDate"));
-                                Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
-                                Log.d(TAG, json.getString("MedicalAppointmentNotes"));
+                                Log.d(TAG, json.getString("MedicineAppointmentDate"));
+                                Log.d(TAG, json.getString("MedicineAppointmentNotes"));
+                                Log.d(TAG, json.getString("MedicineAppointmentBookingHours"));
                             }
                         }
                         if (mAppt.size() != 0) {
                             //throw into adapter to show list of appt
                             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                             rvMedicineAppt.setLayoutManager(layoutManager);
-                            adapter = new MedicalApptAdapter(mAppt, getActivity());
+                            adapter = new MedicineApptAdapter(mAppt, getActivity());
                             rvMedicineAppt.setAdapter(adapter);
                         }
 

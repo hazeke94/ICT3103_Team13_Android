@@ -197,4 +197,16 @@ public class medicalAppointmentFragment extends Fragment {
         super.onStart();
         retrieveAppointmentDate();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Long timestamp = System.currentTimeMillis() / 1000;
+        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
+        Long difference = timestamp - loginStamp;
+        if(difference >= 3600){
+            MainActivity a = new MainActivity();
+            a.logoutUser();
+        }
+    }
 }
