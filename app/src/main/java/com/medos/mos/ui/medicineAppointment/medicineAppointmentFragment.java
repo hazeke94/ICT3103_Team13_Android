@@ -4,6 +4,7 @@ package com.medos.mos.ui.medicineAppointment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -27,6 +28,7 @@ import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
 import com.medos.mos.ui.adapter.MedicineApptAdapter;
+import com.medos.mos.ui.login.LoginActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -121,7 +123,7 @@ public class medicineAppointmentFragment extends Fragment {
         Long loginStamp = pref.getLong("LoginTimeStamp", 0);
         Long difference = timestamp - loginStamp;
         if(difference >= 3600){
-            Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Session Expired, Login Again!", Toast.LENGTH_LONG).show();
             android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(getContext());
             alertDialog.setTitle("Session Expired");
             alertDialog.setMessage("Your Session has Expired.. Please Login again");
@@ -129,8 +131,16 @@ public class medicineAppointmentFragment extends Fragment {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //log user out
-                    MainActivity a = new MainActivity();
-                    a.logoutUser();
+                    SharedPreferences.Editor editor;
+                    editor = pref.edit();
+                    editor.putString("sessionToken", null);
+                    editor.putString("Phone", null);
+                    editor.putString("Password", null);
+                    editor.putLong("LoginTimeStamp", 0);
+                    editor.commit();
+
+                    Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+                    startActivity(loginIntent);
                 }
             });
             AlertDialog dialog = alertDialog.create();

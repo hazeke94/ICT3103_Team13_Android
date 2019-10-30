@@ -3,6 +3,7 @@ package com.medos.mos.ui.home;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
@@ -302,9 +303,29 @@ public class HomeFragment extends Fragment {
         Log.d(TAG,"loginStamp "  + loginStamp);
         Log.d(TAG,"Difference "  + difference);
         if(difference >= 3600){
-            Toast.makeText(getContext(), "Session Timeout, Login Again!", Toast.LENGTH_LONG).show();
-            MainActivity a = new MainActivity();
-            a.logoutUser();
+            Toast.makeText(getContext(), "Session Expired, Login Again!", Toast.LENGTH_LONG).show();
+            android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(getContext());
+            alertDialog.setTitle("Session Expired");
+            alertDialog.setMessage("Your Session has Expired.. Please Login again");
+            alertDialog.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //log user out
+                    SharedPreferences.Editor editor;
+                    editor = pref.edit();
+                    editor.putString("sessionToken", null);
+                    editor.putString("Phone", null);
+                    editor.putString("Password", null);
+                    editor.putLong("LoginTimeStamp", 0);
+                    editor.commit();
+
+                    Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+                    startActivity(loginIntent);
+                }
+            });
+            AlertDialog dialog = alertDialog.create();
+            dialog.setCancelable(false);
+            dialog.show();
         }
     }
 }

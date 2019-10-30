@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -32,13 +33,14 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     SharedPreferences pref;
+    SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
+        pref = getSharedPreferences("Session", 0); // 0 - for private mode
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -83,8 +85,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void logoutUser(){
-        //clear sharedPreference
-        SharedPreferences.Editor editor = pref.edit();
+        Log.d("LOGOUT", "LOGGINOUT");
+//        clear sharedPreference
+        pref = this.getSharedPreferences("Session", 0); // 0 - for private mode
+        editor = pref.edit();
         editor.putString("sessionToken", null);
         editor.putString("Phone", null);
         editor.putString("Password", null);
@@ -99,26 +103,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        //get current time
-        Long timestamp = System.currentTimeMillis() / 1000;
-        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
-        Long difference = timestamp - loginStamp;
-        if(difference >= 3600){
-            Toast.makeText(this, "Session Timeout", Toast.LENGTH_SHORT).show();
-            android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(this);
-            alertDialog.setTitle("Session Expired");
-            alertDialog.setMessage("Your Session has Expired.. Please Login again");
-            alertDialog.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    //log user out
-                    MainActivity a = new MainActivity();
-                    a.logoutUser();
-                }
-            });
-            AlertDialog dialog = alertDialog.create();
-            dialog.setCancelable(false);
-            dialog.show();
-        }
     }
 }
