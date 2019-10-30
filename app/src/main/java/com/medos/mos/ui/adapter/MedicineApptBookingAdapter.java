@@ -18,29 +18,33 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
+import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.medicalAppointment.medicalAppointmentFragment;
+import com.medos.mos.ui.medicineAppointment.medicineAppointmentFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
 
-public class MedicalApptBookingAdapter extends RecyclerView.Adapter<MedicalApptBookingAdapter.AppointmentViewHolder> {
+public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApptBookingAdapter.AppointmentViewHolder>{
     private static final String TAG = "MedicalBookAdapter";
-    List<MedicalAppointment> mAppt;
+    List<MedicineAppointment> mAppt;
     Context context;
     private final LayoutInflater mInflater;
     Utils util;
     SharedPreferences pref;
 
-    public MedicalApptBookingAdapter(List<MedicalAppointment> mAppt, Context context){
+    public MedicineApptBookingAdapter(List<MedicineAppointment> mAppt, Context context) {
         this.mAppt = mAppt;
         this.context = context;
         mInflater = LayoutInflater.from(context);
@@ -50,29 +54,35 @@ public class MedicalApptBookingAdapter extends RecyclerView.Adapter<MedicalApptB
 
     @NonNull
     @Override
-    public AppointmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MedicineApptBookingAdapter.AppointmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = mInflater.inflate(R.layout.appointment_item, parent, false);
-        return new AppointmentViewHolder(itemView);
+        return new MedicineApptBookingAdapter.AppointmentViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AppointmentViewHolder holder, int position) {
-        if(mAppt!= null){
-            final MedicalAppointment appt = mAppt.get(position);
-            holder.tvDate.setText(appt.getMedicalAppointmentDate());
-            holder.tvHours.setText(appt.getMedicalAppointmentBookingHours());
+    public void onBindViewHolder(@NonNull MedicineApptBookingAdapter.AppointmentViewHolder holder, int position) {
+        final MedicineAppointment appt = mAppt.get(position);
+        if(mAppt != null){
+            //implement Post Method
+        /*
+        String summary_id = appt.getSummaryID();
+         */
+
+            holder.tvDate.setText(appt.getMedicineAppointmentDate());
+            holder.tvHours.setText(appt.getMedicinrAppointmentBookingHours());
             holder.cardViewAppt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //get date and time
-                    final String date = appt.getMedicalAppointmentDate();
-                    final String time = appt.getMedicalAppointmentBookingHours();
-                    final int timeID = appt.getMedicalBookHourID();
+                    final String date = appt.getMedicineAppointmentDate();
+                    final String time = appt.getMedicinrAppointmentBookingHours();
+                    final int timeID = appt.getMedicineBookHourID();
+                   // Log.d(TAG, "SummaryID : " +appt.getSummaryID());
 
                     //open dialog to confirm
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-                    alertDialog.setTitle("Confirm Appointment Booking");
-                    alertDialog.setMessage("Appointment Details :" + "\n" +
+                    alertDialog.setTitle("Confirm PickUp Booking");
+                    alertDialog.setMessage("PickUp Details :" + "\n" +
                             "Date: " + date  + "\n" +
                             "Time: " + time + "\n");
                     alertDialog.setPositiveButton("Book", new DialogInterface.OnClickListener() {
@@ -81,17 +91,21 @@ public class MedicalApptBookingAdapter extends RecyclerView.Adapter<MedicalApptB
                             //generate token first
                             String token = util.generateToken(context.getResources().getString(R.string.SPIK), context.getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
                             JSONObject appt_submit = new JSONObject();
+
+                            //POST Method to be implemented
                             try {
-                                appt_submit.put("medicalAppointmentDate", date);
-                                appt_submit.put("medicalAppointmentBookingHours", timeID);
-                                appt_submit.put("medicalAppointmentNotes", "Consultation");
+                                appt_submit.put("medicineAppointmentDate", date);
+                                appt_submit.put("medicineAppointmentBookingHours", timeID);
+                                appt_submit.put("medicineAppointmentNotes", "Pick Up Medication");
 
                                 HttpCall httpCallPost = new HttpCall();
                                 httpCallPost.setHeader(token);
                                 httpCallPost.setMethodtype(HttpCall.POST);
-                                httpCallPost.setUrl(util.MEDICALAPPTURL);
-
+                                httpCallPost.setUrl(util.MEDICINEAPPTBOOK + appt.getMedicalID());
                                 httpCallPost.setParams(appt_submit);
+
+                                Log.d(TAG, "Post Request " + util.MEDICINEAPPTBOOK + appt.getMedicalID());
+
                                 final Activity activity = (Activity) context;
                                 new HttpRequests(activity) {
                                     @Override
@@ -99,32 +113,35 @@ public class MedicalApptBookingAdapter extends RecyclerView.Adapter<MedicalApptB
                                         super.onResponse(response);
                                         Log.d(TAG, "JWT response: " + response);
                                         try {
-                                            String[] tokenResponse = JWTUtils.decoded(response);
-                                            JSONObject obj = new JSONObject(tokenResponse[1]);
+                                            final DecodedJWT decodedJWT = JWT.decode(response);
+                                            if(JWTUtils.verifySignature(activity.getResources().getString(R.string.SPK), decodedJWT)) {
+                                                String[] tokenResponse = JWTUtils.decoded(response);
+                                                JSONObject obj = new JSONObject(tokenResponse[1]);
 
-                                            String result = obj.getString("respond");
-                                            Log.d(TAG, result);
+                                                String result = obj.getString("respond");
+                                                Log.d(TAG, result);
 
-                                            JSONObject respond = new JSONObject(result);
+                                                JSONObject respond = new JSONObject(result);
 
-                                            if(respond.getString("Success").equals("true")){
-                                                //store in sharedpreference
-                                                Fragment frag = new medicalAppointmentFragment();
+                                                if (respond.getString("Success").equals("true")) {
+                                                    //store in sharedpreference
+                                                Fragment frag = new medicineAppointmentFragment();
                                                 AppCompatActivity a = (AppCompatActivity) context;
                                                 a.getSupportFragmentManager().popBackStack();
-
-                                            }
-                                            else{
-                                                Toast.makeText(context, "Session Timeout", Toast.LENGTH_SHORT).show();
-                                                if(respond.getString("Error").equals("Invalid Token")){
-                                                    //log user out
-                                                    MainActivity a = new MainActivity();
-                                                    a.logoutUser();
+                                                activity.finish();
+                                                }
+                                                else{
+                                                    Toast.makeText(context, "Session Timeout", Toast.LENGTH_SHORT).show();
+                                                    if(respond.getString("Error").equals("Invalid Token")){
+                                                        //log user out
+                                                        MainActivity a = new MainActivity();
+                                                        a.logoutUser();
+                                                    }
                                                 }
                                             }
-
-
-
+                                            else{
+                                                Toast.makeText(activity, "Invalid Signature", Toast.LENGTH_SHORT).show();
+                                            }
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -132,9 +149,12 @@ public class MedicalApptBookingAdapter extends RecyclerView.Adapter<MedicalApptB
 
                                     }
                                 }.execute(httpCallPost);
+
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+
                         }
                     });
                     alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -150,9 +170,10 @@ public class MedicalApptBookingAdapter extends RecyclerView.Adapter<MedicalApptB
                     //okay post
 
                 }
-            });
-        }
+        });
+
     }
+}
 
     @Override
     public int getItemCount() {
@@ -169,4 +190,4 @@ public class MedicalApptBookingAdapter extends RecyclerView.Adapter<MedicalApptB
             cardViewAppt = itemView.findViewById(R.id.cardViewAppt);
         }
     }
-}
+    }

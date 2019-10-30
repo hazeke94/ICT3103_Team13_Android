@@ -21,6 +21,9 @@ public class Utils {
     public String LOGINAPIURL = "https://ict3103api.azurewebsites.net/api/Login";
     public String OTPAPIURL = "https://ict3103api.azurewebsites.net/api/Otp";
 
+    //Profile
+    public String PROFILEURL = "https://ict3103api.azurewebsites.net/api/Profile";
+
     //Clinic Booking Appointment
     public String AvailableMedicineSlotsGetURL = "https://ict3103api.azurewebsites.net/api/ClinicBookingHours/MedicineAppointment?StartDate=";
     public String AvailableMedicalSlotsGETURL = "https://ict3103api.azurewebsites.net/api/ClinicBookingHours/MedicalAppointment?StartDate=";
@@ -31,7 +34,8 @@ public class Utils {
 
     //Medicine Appointment
     public String MEDICINEAPPTURL = "https://ict3103api.azurewebsites.net/api/MedicineAppointment";
-    public String MEDICINEAPPTREQUEST = "/api/MedicineAppointment/request";
+    public String MEDICINEAPPTREQUEST = "https://ict3103api.azurewebsites.net/api/MedicineAppointment/request";
+    public String MEDICINEAPPTBOOK = "https://ict3103api.azurewebsites.net/api/MedicineAppointment/";
 
     //Forget Password
     public String FORGETREQUESTAPIURL = "https://ict3103api.azurewebsites.net/api/ForgetPassword/Request";
