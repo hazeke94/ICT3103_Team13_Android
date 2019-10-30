@@ -1,6 +1,8 @@
 package com.medos.mos.ui.home;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -34,8 +37,10 @@ import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
 import com.medos.mos.ui.login.LoginActivity;
+import com.medos.mos.ui.medicineAppointment.medicineAppointmentFragment;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
@@ -54,9 +59,6 @@ public class HomeFragment extends Fragment {
     RecyclerView rvUpcoming, rvPickUp;
     MedicalApptAdapter adapter;
     MedicalApptAdapter pickUpAdapter;
-    int year1 = 0;
-    int month1 = 0;
-    int day1 = 0;
 
     private String TAG = "homeFragment";
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -67,9 +69,6 @@ public class HomeFragment extends Fragment {
         pref = getContext().getSharedPreferences("Session", 0); // 0 - for private mode
         rvUpcoming = root.findViewById(R.id.rvUpcoming_Appt);
         rvPickUp = root.findViewById(R.id.rvPickUpMedication);
-        //get current appointment
-
-
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -78,6 +77,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
+                        //get current appointment
                         getCurrentAppointment();
                         getMedicationAppointment();
                     }
@@ -134,21 +134,29 @@ public class HomeFragment extends Fragment {
                                     mPickUp.add(appt);
                                 }
                             }
-//                            if (mPickUp.size() != 0) {
                                 //throw into adapter to show list of appt
                             LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
                             rvPickUp.setLayoutManager(layoutManager1);
                             pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
                             rvPickUp.setAdapter(pickUpAdapter);
-//                            }
-
                         }
                         else{
-                            Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
                             if(respond.getString("Error").equals("Invalid Token")){
-                                //log user out
-                                MainActivity a = new MainActivity();
-                                a.logoutUser();
+                                Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+                                alertDialog.setTitle("Session Expired");
+                                alertDialog.setMessage("Your Session has Expired.. Please Login again");
+                                alertDialog.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //log user out
+                                        MainActivity a = new MainActivity();
+                                        a.logoutUser();
+                                    }
+                                });
+                                AlertDialog dialog = alertDialog.create();
+                                dialog.setCancelable(false);
+                                dialog.show();
                             }
                         }
                     }
@@ -165,19 +173,6 @@ public class HomeFragment extends Fragment {
     }
 
     public void getCurrentAppointment(){
-        Calendar c1 = null;
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            c1 = Calendar.getInstance();
-            c1.set(Calendar.DAY_OF_WEEK, 1);
-
-            //first day of week
-            year1 = c1.get(Calendar.YEAR);
-            month1 = c1.get(Calendar.MONTH)+1;
-            day1 = c1.get(Calendar.DAY_OF_MONTH);
-        }
-
-
         String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setHeader(token);
@@ -230,28 +225,13 @@ public class HomeFragment extends Fragment {
                                             Log.d(TAG, json.getString("MedicalAppointmentNotes"));
                                         }
                                     }
-//                                    if(appt.getStatus().equals("Collection of Medicine")){
-//                                        mPickUp.add(appt);
-//                                        Log.d(TAG, json.getString("MedicalAppointmentDate"));
-//                                        Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
-//                                        Log.d(TAG, json.getString("MedicalAppointmentNotes"));
-//                                    }
-
                                 }
                             }
-//                            if (mAppt.size() != 0 || mPickUp.size() != 0) {
                                 //throw into adapter to show list of appt
                                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                                 rvUpcoming.setLayoutManager(layoutManager);
                                 adapter = new MedicalApptAdapter(mAppt, getActivity());
                                 rvUpcoming.setAdapter(adapter);
-
-//                            LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
-//                            rvPickUp.setLayoutManager(layoutManager1);
-//                            pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
-//                                rvPickUp.setAdapter(pickUpAdapter);
-//                            }
-
                         }
                         else{
                             Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
@@ -277,7 +257,6 @@ public class HomeFragment extends Fragment {
     private boolean checkDate(String date, String today) {
         SimpleDateFormat sdf = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            //sdf = new SimpleDateFormat("yyyy-MM-dd");
             sdf = new SimpleDateFormat("dd/MM/yyyy");
             try {
                 Date date1 = sdf.parse(date);
@@ -323,6 +302,7 @@ public class HomeFragment extends Fragment {
         Log.d(TAG,"loginStamp "  + loginStamp);
         Log.d(TAG,"Difference "  + difference);
         if(difference >= 3600){
+            Toast.makeText(getContext(), "Session Timeout, Login Again!", Toast.LENGTH_LONG).show();
             MainActivity a = new MainActivity();
             a.logoutUser();
         }

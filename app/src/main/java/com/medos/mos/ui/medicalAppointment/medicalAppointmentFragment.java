@@ -1,6 +1,8 @@
 package com.medos.mos.ui.medicalAppointment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -19,6 +21,7 @@ import android.widget.Toast;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
@@ -75,9 +78,6 @@ public class medicalAppointmentFragment extends Fragment {
         util = new Utils();
         pref = getActivity().getSharedPreferences("Session", 0); // 0 - for private mode
 
-        //call method to get medical appointment
-        //retrieveAppointmentDate();
-
         //request appointment
         fabAppointment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,33 +95,9 @@ public class medicalAppointmentFragment extends Fragment {
     }
 
     public void retrieveAppointmentDate() {
-        Payload payload;
-        Map<String, Object> headerClaims = new HashMap();
-        headerClaims.put("alg", "RS256");
-        headerClaims.put("typ", "JWT");
-
-        payload = util.generatePayload(getResources().getString(R.string.issuer));
-
         try {
-            //We will sign our JWT with our ApiKey secret
-            String privateKey = getResources().getString(R.string.SPIK);
-            privateKey = privateKey.replace("-----BEGIN RSA PRIVATE KEY-----", "");
-            privateKey = privateKey.replace("-----END RSA PRIVATE KEY-----", "");
-            privateKey = privateKey.replaceAll("\\s+", "");
-
-            PrivateKey privKey = JWTUtils.generatePrivateKey(privateKey);
-            Algorithm algorithm = Algorithm.RSA256(null, (RSAPrivateKey) privKey);
-
             //create token to be sent for otp
-            String token = JWT.create()
-                    .withHeader(headerClaims)
-                    .withClaim("iss", payload.getIss())
-                    .withClaim("exp", payload.getEx())
-                    .withClaim("iat", payload.getIat())
-                    .withClaim("token", pref.getString("sessionToken", ""))
-                    .sign(algorithm);
-            Log.d(TAG, token);
-
+            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));            Log.d(TAG, token);
 
             //get request for appointment
             HttpCall httpCallPost = new HttpCall();
@@ -136,58 +112,56 @@ public class medicalAppointmentFragment extends Fragment {
                     Log.d(TAG, "JWT response: " + response);
                     String[] tokenResponse = new String[2];
                     try {
-                        tokenResponse = JWTUtils.decoded(response);
-                        JSONObject obj = new JSONObject(tokenResponse[1]);
-                        Log.d(TAG, obj.getString("respond"));
-                        String result = obj.getString("respond");
-                        JSONObject respond = new JSONObject(result);
+                        final DecodedJWT decodedJWT = JWT.decode(response);
+                        if(JWTUtils.verifySignature(getResources().getString(R.string.SPK), decodedJWT)) {
+                            tokenResponse = JWTUtils.decoded(response);
+                            JSONObject obj = new JSONObject(tokenResponse[1]);
+                            Log.d(TAG, obj.getString("respond"));
+                            String result = obj.getString("respond");
+                            JSONObject respond = new JSONObject(result);
 
-                        if (respond.getString("Success").equals("true")) {
-                            //get list of dates
-                            mAppt = new ArrayList<>();
-                            JSONArray appointmentList = respond.getJSONArray("Respond");
-                            int length = appointmentList.length();
-                            Log.d(TAG, String.valueOf(length));
-                            if(length !=0) {
-                                for (int i = 0; i < length; i++) {
-                                    JSONObject json = appointmentList.getJSONObject(i);
+                            if (respond.getString("Success").equals("true")) {
+                                //get list of dates
+                                mAppt = new ArrayList<>();
+                                JSONArray appointmentList = respond.getJSONArray("Respond");
+                                int length = appointmentList.length();
+                                Log.d(TAG, String.valueOf(length));
+                                if (length != 0) {
+                                    for (int i = 0; i < length; i++) {
+                                        JSONObject json = appointmentList.getJSONObject(i);
 
-                                    MedicalAppointment appt = new MedicalAppointment(json.getString("MedicalAppointmentDate"), json.getString("MedicalAppointmentNotes"), json.getString("MedicalAppointmentBookingHours"), 0);
-                                    appt.setStatus(json.getString("MedicalAppointmentStatus"));
-                                    appt.setMedicalID(json.getInt("MedicalAppointmentId"));
-                                    mAppt.add(appt);
-                                    Log.d(TAG, json.getString("MedicalAppointmentDate"));
-                                    Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
-                                    Log.d(TAG, json.getString("MedicalAppointmentNotes"));
+                                        MedicalAppointment appt = new MedicalAppointment(json.getString("MedicalAppointmentDate"), json.getString("MedicalAppointmentNotes"), json.getString("MedicalAppointmentBookingHours"), 0);
+                                        appt.setStatus(json.getString("MedicalAppointmentStatus"));
+                                        appt.setMedicalID(json.getInt("MedicalAppointmentId"));
+                                        mAppt.add(appt);
+                                        Log.d(TAG, json.getString("MedicalAppointmentDate"));
+                                        Log.d(TAG, json.getString("MedicalAppointmentBookingHours"));
+                                        Log.d(TAG, json.getString("MedicalAppointmentNotes"));
+                                    }
                                 }
-                            }
-                            if (mAppt.size() != 0) {
-                                //throw into adapter to show list of appt
-                                LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-                                rvMedAppt.setLayoutManager(layoutManager);
-                                adapter = new MedicalApptAdapter(mAppt, getActivity());
-                                rvMedAppt.setAdapter(adapter);
-                            }
-
-                        }
-                        else{
-                            Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
-                            if(respond.getString("Error").equals("Invalid Token")){
-                                //log user out
-                                MainActivity a = new MainActivity();
-                                a.logoutUser();
+                                if (mAppt.size() != 0) {
+                                    //throw into adapter to show list of appt
+                                    LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                                    rvMedAppt.setLayoutManager(layoutManager);
+                                    adapter = new MedicalApptAdapter(mAppt, getActivity());
+                                    rvMedAppt.setAdapter(adapter);
+                                }
+                            } else {
+                                Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+                                if (respond.getString("Error").equals("Invalid Token")) {
+                                    //log user out
+                                    MainActivity a = new MainActivity();
+                                    a.logoutUser();
+                                }
                             }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
             }.execute(httpCallPost);
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
+        }
+        catch(Exception e){
             e.printStackTrace();
         }
     }
@@ -205,8 +179,21 @@ public class medicalAppointmentFragment extends Fragment {
         Long loginStamp = pref.getLong("LoginTimeStamp", 0);
         Long difference = timestamp - loginStamp;
         if(difference >= 3600){
-            MainActivity a = new MainActivity();
-            a.logoutUser();
+            Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+            android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(getContext());
+            alertDialog.setTitle("Session Expired");
+            alertDialog.setMessage("Your Session has Expired.. Please Login again");
+            alertDialog.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //log user out
+                    MainActivity a = new MainActivity();
+                    a.logoutUser();
+                }
+            });
+            AlertDialog dialog = alertDialog.create();
+            dialog.setCancelable(false);
+            dialog.show();
         }
     }
 }

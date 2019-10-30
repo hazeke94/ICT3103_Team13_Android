@@ -127,12 +127,8 @@ public class MedicalAppointmentDetail extends AppCompatActivity {
                                         }
                                     }
                                     else{
-
+                                        Toast.makeText(MedicalAppointmentDetail.this, "Invalid Signature", Toast.LENGTH_SHORT).show();
                                     }
-
-
-
-
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

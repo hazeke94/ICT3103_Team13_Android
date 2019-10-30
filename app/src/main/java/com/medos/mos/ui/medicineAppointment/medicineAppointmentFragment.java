@@ -2,6 +2,8 @@ package com.medos.mos.ui.medicineAppointment;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -13,9 +15,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
+import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
@@ -108,7 +112,31 @@ public class medicineAppointmentFragment extends Fragment {
 
             }
         }.execute(httpCallPost);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Long timestamp = System.currentTimeMillis() / 1000;
+        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
+        Long difference = timestamp - loginStamp;
+        if(difference >= 3600){
+            Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+            android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(getContext());
+            alertDialog.setTitle("Session Expired");
+            alertDialog.setMessage("Your Session has Expired.. Please Login again");
+            alertDialog.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //log user out
+                    MainActivity a = new MainActivity();
+                    a.logoutUser();
+                }
+            });
+            AlertDialog dialog = alertDialog.create();
+            dialog.setCancelable(false);
+            dialog.show();
+        }
     }
 
 }

@@ -29,6 +29,7 @@ import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.medicalAppointment.medicalAppointmentFragment;
+import com.medos.mos.ui.medicineAppointment.medicineAppointmentFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -124,11 +125,10 @@ public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApp
 
                                                 if (respond.getString("Success").equals("true")) {
                                                     //store in sharedpreference
-//                                                Fragment frag = new medicalAppointmentFragment();
-//                                                AppCompatActivity a = (AppCompatActivity) context;
-//                                                a.getSupportFragmentManager().popBackStack();
-//                                                activity.finish();
-
+                                                Fragment frag = new medicineAppointmentFragment();
+                                                AppCompatActivity a = (AppCompatActivity) context;
+                                                a.getSupportFragmentManager().popBackStack();
+                                                activity.finish();
                                                 }
                                                 else{
                                                     Toast.makeText(context, "Session Timeout", Toast.LENGTH_SHORT).show();

@@ -55,6 +55,9 @@ public class MedicalApptAdapter extends RecyclerView.Adapter<MedicalApptAdapter.
             else if(appt.getStatus().equals("Completed")){
                 holder.IVStatus.setImageResource(R.drawable.icons_completed);
             }
+            else if(appt.getStatus().equals("Collection of Medication")){
+                holder.IVStatus.setImageResource(R.drawable.icon_medicine);
+            }
             else{
                 holder.IVStatus.setImageResource(R.drawable.icon_rejected);
             }

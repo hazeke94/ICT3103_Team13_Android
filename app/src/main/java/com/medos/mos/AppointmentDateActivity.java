@@ -41,9 +41,9 @@ import java.util.Map;
 
 public class AppointmentDateActivity extends AppCompatActivity {
 
-    Button btnDatePicker, btnTimePicker;
+    Button btnDatePicker;
     EditText txtDate, txtTime;
-    private int mYear, mMonth, mDay, mHour, mMinute;
+    private int mYear, mMonth, mDay;
 
     RecyclerView rvTimeSlot;
     ArrayList<MedicineAppointment> medicineApptList = new ArrayList<>();
@@ -77,7 +77,7 @@ public class AppointmentDateActivity extends AppCompatActivity {
     }
 
     public void selectDate(){
-// Get Current Date
+        // Get Current Date
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
@@ -146,8 +146,8 @@ public class AppointmentDateActivity extends AppCompatActivity {
                                     }
                                     if (medicineApptList != null) {
                                         //throw into adapter to show list of appt
-
                                         LinearLayoutManager layoutManager = new LinearLayoutManager((getApplicationContext()));
+                                        rvTimeSlot.setHasFixedSize(true);
                                         rvTimeSlot.setLayoutManager(layoutManager);
                                         MedicineApptBookingAdapter adapter = new MedicineApptBookingAdapter(medicineApptList, AppointmentDateActivity.this);
                                         rvTimeSlot.setAdapter(adapter);

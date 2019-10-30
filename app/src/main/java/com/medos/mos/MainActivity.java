@@ -1,5 +1,7 @@
 package com.medos.mos;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,7 +12,6 @@ import com.google.android.material.snackbar.Snackbar;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -25,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -102,8 +104,21 @@ public class MainActivity extends AppCompatActivity {
         Long loginStamp = pref.getLong("LoginTimeStamp", 0);
         Long difference = timestamp - loginStamp;
         if(difference >= 3600){
-
-            logoutUser();
+            Toast.makeText(this, "Session Timeout", Toast.LENGTH_SHORT).show();
+            android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(this);
+            alertDialog.setTitle("Session Expired");
+            alertDialog.setMessage("Your Session has Expired.. Please Login again");
+            alertDialog.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //log user out
+                    MainActivity a = new MainActivity();
+                    a.logoutUser();
+                }
+            });
+            AlertDialog dialog = alertDialog.create();
+            dialog.setCancelable(false);
+            dialog.show();
         }
     }
 }
