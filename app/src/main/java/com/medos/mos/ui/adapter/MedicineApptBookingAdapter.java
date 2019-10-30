@@ -28,6 +28,7 @@ import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.JWTUtils;
+import com.medos.mos.ui.login.OTPActivity;
 import com.medos.mos.ui.medicalAppointment.medicalAppointmentFragment;
 import com.medos.mos.ui.medicineAppointment.medicineAppointmentFragment;
 
@@ -43,6 +44,7 @@ public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApp
     private final LayoutInflater mInflater;
     Utils util;
     SharedPreferences pref;
+    OTPActivity otp;
 
     public MedicineApptBookingAdapter(List<MedicineAppointment> mAppt, Context context) {
         this.mAppt = mAppt;
@@ -89,7 +91,7 @@ public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApp
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             //generate token first
-                            String token = util.generateToken(context.getResources().getString(R.string.SPIK), context.getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+                            String token = util.generateToken(context.getResources().getString(R.string.SPIK), context.getResources().getString(R.string.issuer), otp.decryptString(context, pref.getString("sessionToken", "")));
                             JSONObject appt_submit = new JSONObject();
 
                             //POST Method to be implemented

@@ -30,6 +30,7 @@ import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
 import com.medos.mos.ui.adapter.MedicineApptBookingAdapter;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,6 +58,8 @@ public class MedicineappointmentDateFragment extends Fragment {
     String TAG = "AppointmentDateFragment";
     Utils util;
     SharedPreferences pref;
+    OTPActivity otp;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_appointment_date, container, false);
@@ -126,7 +129,7 @@ public class MedicineappointmentDateFragment extends Fragment {
                     .withClaim("iss", payload.getIss())
                     .withClaim("exp", payload.getEx())
                     .withClaim("iat", payload.getIat())
-                    .withClaim("token", pref.getString("sessionToken",""))
+                    .withClaim("token", otp.decryptString(this.getContext(), pref.getString("sessionToken","")))
                     .sign(algorithm);
             Log.d(TAG,token);
 
@@ -177,15 +180,13 @@ public class MedicineappointmentDateFragment extends Fragment {
                                     rvTimeSlot.setAdapter(adapter);
                                 }
                             }
-                            else{
+                            else {
                                 Toast.makeText(getContext(), "failed", Toast.LENGTH_SHORT).show();
                             }
-
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
             }.execute(httpCallPost);
 
@@ -196,8 +197,5 @@ public class MedicineappointmentDateFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
     }
-
 }

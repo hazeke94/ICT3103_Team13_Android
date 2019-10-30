@@ -27,6 +27,7 @@ import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,6 +54,7 @@ public class MedicalappointmentDateFragment extends Fragment {
     String TAG = "AppointmentDateFragment";
     Utils util;
     SharedPreferences pref;
+    OTPActivity otp;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -125,7 +127,7 @@ public class MedicalappointmentDateFragment extends Fragment {
                     .withClaim("iss", payload.getIss())
                     .withClaim("exp", payload.getEx())
                     .withClaim("iat", payload.getIat())
-                    .withClaim("token", pref.getString("sessionToken",""))
+                    .withClaim("token", otp.decryptString(this.getContext(), pref.getString("sessionToken","")))
                     .sign(algorithm);
             Log.d(TAG,token);
 
@@ -194,8 +196,5 @@ public class MedicalappointmentDateFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
     }
-
 }

@@ -38,6 +38,7 @@ import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
 import com.medos.mos.ui.login.LoginActivity;
+import com.medos.mos.ui.login.OTPActivity;
 import com.medos.mos.ui.medicineAppointment.medicineAppointmentFragment;
 
 import org.json.JSONArray;
@@ -60,6 +61,7 @@ public class HomeFragment extends Fragment {
     RecyclerView rvUpcoming, rvPickUp;
     MedicalApptAdapter adapter;
     MedicalApptAdapter pickUpAdapter;
+    OTPActivity otp;
 
     private String TAG = "homeFragment";
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -89,7 +91,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void getMedicationAppointment() {
-        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setHeader(token);
         httpCallPost.setMethodtype(HttpCall.GET);
@@ -174,7 +176,7 @@ public class HomeFragment extends Fragment {
     }
 
     public void getCurrentAppointment(){
-        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setHeader(token);
         httpCallPost.setMethodtype(HttpCall.GET);
@@ -297,8 +299,12 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Long timestamp = System.currentTimeMillis() / 1000;
-        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
+
+        String loginStamp_str = otp.decryptString(this.getContext(), pref.getString("LoginTimeStamp", ""));
+        Long loginStamp = Long.valueOf(loginStamp_str);
+
         Long difference = timestamp - loginStamp;
+
         Log.d(TAG,"timestamp "  + timestamp);
         Log.d(TAG,"loginStamp "  + loginStamp);
         Log.d(TAG,"Difference "  + difference);
@@ -316,7 +322,7 @@ public class HomeFragment extends Fragment {
                     editor.putString("sessionToken", null);
                     editor.putString("Phone", null);
                     editor.putString("Password", null);
-                    editor.putLong("LoginTimeStamp", 0);
+                    editor.putString("LoginTimeStamp", null);
                     editor.commit();
 
                     Intent loginIntent = new Intent(getContext(), LoginActivity.class);

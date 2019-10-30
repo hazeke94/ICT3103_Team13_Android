@@ -25,6 +25,7 @@ import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
 import com.medos.mos.ui.adapter.MedicineApptBookingAdapter;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,6 +53,8 @@ public class AppointmentDateActivity extends AppCompatActivity {
     Utils util;
     SharedPreferences pref;
     MedicalAppointment med_appt;
+    OTPActivity otp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +104,7 @@ public class AppointmentDateActivity extends AppCompatActivity {
     public void retrieveAppointmentDate(final String date){
         try {
             //We will sign our JWT with our ApiKey secret
-            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(this, pref.getString("sessionToken", "")));
             Log.d(TAG,token);
 
             final JSONObject appointment = new JSONObject();

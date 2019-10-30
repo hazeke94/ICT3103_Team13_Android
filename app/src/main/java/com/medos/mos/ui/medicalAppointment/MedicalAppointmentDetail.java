@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,10 +22,12 @@ import com.medos.mos.AppointmentDateActivity;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
+import com.medos.mos.MedicalappointmentDateFragment;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.ui.JWTUtils;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +37,8 @@ public class MedicalAppointmentDetail extends AppCompatActivity {
     SharedPreferences pref;
     Utils util;
     MedicalAppointment appt;
+    OTPActivity otp;
+    Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
@@ -77,79 +82,80 @@ public class MedicalAppointmentDetail extends AppCompatActivity {
 
 
     public void cancelAppt(View view) {
-            //open dialog to confirm
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-            alertDialog.setTitle("Cancel Appointment Booking");
-            alertDialog.setMessage("Do you wish to cancel?");
-            alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    //generate token first
-                    String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
-                    JSONObject cancel_appt = new JSONObject();
+        context = this;
+        //open dialog to confirm
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Cancel Appointment Booking");
+        alertDialog.setMessage("Do you wish to cancel?");
+        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //generate token first
+                String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(context, pref.getString("sessionToken", "")));
+                JSONObject cancel_appt = new JSONObject();
 
-                    try {
-                        cancel_appt.put("MedicalBookingID", appt.getMedicalID());
+                try {
+                    cancel_appt.put("MedicalBookingID", appt.getMedicalID());
 
-                        HttpCall httpCallPost = new HttpCall();
-                        httpCallPost.setHeader(token);
-                        httpCallPost.setMethodtype(HttpCall.GET);
-                        httpCallPost.setUrl(util.CancelMedicalAppt);
+                    HttpCall httpCallPost = new HttpCall();
+                    httpCallPost.setHeader(token);
+                    httpCallPost.setMethodtype(HttpCall.GET);
+                    httpCallPost.setUrl(util.CancelMedicalAppt);
 
-                        httpCallPost.setParams(cancel_appt);
+                    httpCallPost.setParams(cancel_appt);
 
-                        new HttpRequests(MedicalAppointmentDetail.this) {
-                            @Override
-                            public void onResponse(String response) {
-                                super.onResponse(response);
-                                Log.d(TAG, "JWT response: " + response);
-                                try {
-                                    String[] tokenResponse = JWTUtils.decoded(response);
-                                    final DecodedJWT decodedJWT = JWT.decode(response);
-                                    if(JWTUtils.verifySignature(getResources().getString(R.string.SPK), decodedJWT)) {
-                                        JSONObject obj = new JSONObject(tokenResponse[1]);
+                    new HttpRequests(MedicalAppointmentDetail.this) {
+                        @Override
+                        public void onResponse(String response) {
+                            super.onResponse(response);
+                            Log.d(TAG, "JWT response: " + response);
+                            try {
+                                String[] tokenResponse = JWTUtils.decoded(response);
+                                final DecodedJWT decodedJWT = JWT.decode(response);
+                                if(JWTUtils.verifySignature(getResources().getString(R.string.SPK), decodedJWT)) {
+                                    JSONObject obj = new JSONObject(tokenResponse[1]);
 
-                                        String result = obj.getString("respond");
-                                        Log.d(TAG, result);
+                                    String result = obj.getString("respond");
+                                    Log.d(TAG, result);
 
-                                        JSONObject respond = new JSONObject(result);
+                                    JSONObject respond = new JSONObject(result);
 
-                                        if (respond.getString("Success").equals("true")) {
-                                            //store in sharedpreference
-                                            finish();
-                                        } else{
-                                            Toast.makeText(getApplicationContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
-                                            if(respond.getString("Error").equals("Invalid Token")){
-                                                //log user out
-                                                MainActivity a = new MainActivity();
-                                                a.logoutUser();
-                                            }
+                                    if (respond.getString("Success").equals("true")) {
+                                        //store in sharedpreference
+                                        finish();
+                                    } else{
+                                        Toast.makeText(getApplicationContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
+                                        if(respond.getString("Error").equals("Invalid Token")){
+                                            //log user out
+                                            MainActivity a = new MainActivity();
+                                            a.logoutUser();
                                         }
                                     }
-                                    else{
-                                        Toast.makeText(MedicalAppointmentDetail.this, "Invalid Signature", Toast.LENGTH_SHORT).show();
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
                                 }
-
-
+                                else{
+                                    Toast.makeText(MedicalAppointmentDetail.this, "Invalid Signature", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        }.execute(httpCallPost);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // DO SOMETHING HERE
-                    dialog.cancel();
-                }
-            });
 
-            AlertDialog dialog = alertDialog.create();
-            dialog.show();
+
+                        }
+                    }.execute(httpCallPost);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // DO SOMETHING HERE
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog dialog = alertDialog.create();
+        dialog.show();
     }
 }

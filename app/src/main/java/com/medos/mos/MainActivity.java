@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("sessionToken", null);
         editor.putString("Phone", null);
         editor.putString("Password", null);
-        editor.putLong("LoginTimeStamp", 0);
+        editor.putString("LoginTimeStamp", null);
         editor.commit();
 
         Intent loginIntent = new Intent(this, LoginActivity.class);

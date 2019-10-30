@@ -30,6 +30,7 @@ import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,6 +43,8 @@ public class profileFragment extends Fragment {
     SharedPreferences pref;
     private String TAG = "profileFragment";
     TextView tvName, tvage, tvgender, tvbo, tvAllergies, tvdob, tvAddr;
+    OTPActivity otp;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -62,7 +65,7 @@ public class profileFragment extends Fragment {
     }
 
     private void retrieveProfile() {
-        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setHeader(token);
         httpCallPost.setMethodtype(HttpCall.GET);

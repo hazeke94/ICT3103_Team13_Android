@@ -2,6 +2,7 @@ package com.medos.mos.ui.medicalAppointment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,6 +36,7 @@ import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
 import com.medos.mos.ui.login.LoginActivity;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,7 +50,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class medicalAppointmentFragment extends Fragment {
-
+    OTPActivity otp;
     FloatingActionButton fabAppointment;
     RecyclerView rvMedAppt;
     ArrayList<MedicalAppointment> mAppt = new ArrayList<>();
@@ -56,6 +58,7 @@ public class medicalAppointmentFragment extends Fragment {
     SharedPreferences pref;
     String TAG = "medicalApptFrag";
     MedicalApptAdapter adapter;
+    Context context = getContext();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -99,7 +102,8 @@ public class medicalAppointmentFragment extends Fragment {
     public void retrieveAppointmentDate() {
         try {
             //create token to be sent for otp
-            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));            Log.d(TAG, token);
+            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
+            Log.d(TAG, token);
 
             //get request for appointment
             HttpCall httpCallPost = new HttpCall();
@@ -178,8 +182,10 @@ public class medicalAppointmentFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Long timestamp = System.currentTimeMillis() / 1000;
-        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
+        String loginStamp_str = otp.decryptString(this.getContext(), pref.getString("LoginTimeStamp", ""));
+        Long loginStamp = Long.valueOf(loginStamp_str);
         Long difference = timestamp - loginStamp;
+
         if(difference >= 3600){
             Toast.makeText(getContext(), "Session Expired, Login Again!", Toast.LENGTH_LONG).show();
             android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(getContext());
@@ -194,7 +200,7 @@ public class medicalAppointmentFragment extends Fragment {
                     editor.putString("sessionToken", null);
                     editor.putString("Phone", null);
                     editor.putString("Password", null);
-                    editor.putLong("LoginTimeStamp", 0);
+                    editor.putString("LoginTimeStamp", null);
                     editor.commit();
 
                     Intent loginIntent = new Intent(getContext(), LoginActivity.class);
