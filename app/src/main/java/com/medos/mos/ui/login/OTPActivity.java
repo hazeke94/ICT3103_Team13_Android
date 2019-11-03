@@ -1,12 +1,12 @@
 package com.medos.mos.ui.login;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.security.KeyPairGeneratorSpec;
 import android.util.Base64;
@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.medos.mos.AES_ECB;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
@@ -62,8 +63,10 @@ public class OTPActivity extends AppCompatActivity {
     private static final String CYPHER = "RSA/ECB/PKCS1Padding";
     private static final String ENCODING = "UTF-8";
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final Context context = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_otp);
         phone = getIntent().getStringExtra("phone");
@@ -72,15 +75,34 @@ public class OTPActivity extends AppCompatActivity {
         util = new Utils();
         pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
         editor = pref.edit();
+
+        //TAO:
+        boolean hasRSK = pref.contains("rsk");
+        if (hasRSK == false) {
+            Log.d(TAG, "RSK DONT EXIST");
+            String rsaKey = AES_ECB.getRsaKey();
+            editor.putString("rsk", encryptString(context, rsaKey));
+            {Log.d(TAG, "RSK INSERTED");}
+
+        } else {Log.d(TAG, "RSK EXISTS");}
+
+
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void sendOTP(View view) {
         EditText edOTP = findViewById(R.id.edOTP);
         int otp_input = Integer.parseInt(edOTP.getText().toString());
         final Context context = this;
 
         try {
-            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer));
+            //TAO: get rsakey
+            String rsaKey = decryptString(context, pref.getString("rsk", ""));
+            //get rsa
+            String SPIK = AES_ECB.getRsa(rsaKey);
+            String token = util.generateToken(SPIK, getResources().getString(R.string.issuer));
+
+            //String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer));
             Log.d(TAG,token);
             JSONObject otp_submit = new JSONObject();
             otp_submit.put("otp", otp_input);
