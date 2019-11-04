@@ -66,25 +66,13 @@ public class OTPActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final Context context = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_otp);
         phone = getIntent().getStringExtra("phone");
         password = getIntent().getStringExtra("password");
-
         util = new Utils();
         pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
         editor = pref.edit();
-
-        //TAO:
-        boolean hasRSK = pref.contains("rsk");
-        if (hasRSK == false) {
-            Log.d(TAG, "RSK DONT EXIST");
-            String rsaKey = AES_ECB.getRsaKey();
-            editor.putString("rsk", encryptString(context, rsaKey));
-            {Log.d(TAG, "RSK INSERTED");}
-
-        } else {Log.d(TAG, "RSK EXISTS");}
 
 
     }
@@ -95,14 +83,26 @@ public class OTPActivity extends AppCompatActivity {
         int otp_input = Integer.parseInt(edOTP.getText().toString());
         final Context context = this;
 
+        //TAO:
+        boolean hasRSK = pref.contains("rsk");
+        if (hasRSK == false) {
+            Log.d(TAG, "RSK DONT EXIST");
+            editor.putString("rsk", encryptString(context, AES_ECB.getEnRsaKey()));
+            //editor.putString("rsk", AES_ECB.getEnRsaKey());
+            editor.apply();
+            {Log.d(TAG, "RSK INSERTED");}
+        } else {Log.d(TAG, "RSK EXISTS");}
+
+
         try {
-            //TAO: get rsakey
-            String rsaKey = decryptString(context, pref.getString("rsk", ""));
-            //get rsa
-            String SPIK = AES_ECB.getRsa(rsaKey);
+            //TAO
+            Log.d(TAG, "Finding SPIK");
+            String enRsaKey = decryptString(context, pref.getString("rsk", ""));
+            String rsaKey = AES_ECB.getRsaKey(enRsaKey);
+            String SPIK = AES_ECB.decryptRsa(rsaKey);
+
             String token = util.generateToken(SPIK, getResources().getString(R.string.issuer));
 
-            //String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer));
             Log.d(TAG,token);
             JSONObject otp_submit = new JSONObject();
             otp_submit.put("otp", otp_input);
@@ -159,7 +159,7 @@ public class OTPActivity extends AppCompatActivity {
     }
 
     // Encrypt the user login data
-    private static String encryptString(Context context, String toEncrypt) {
+    public static String encryptString(Context context, String toEncrypt) {
         try {
             final KeyStore.PrivateKeyEntry privateKeyEntry = getPrivateKey(context);
             if (privateKeyEntry != null) {

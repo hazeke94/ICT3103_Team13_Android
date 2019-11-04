@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,6 +27,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.medos.mos.AES_ECB;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
@@ -49,6 +52,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.medos.mos.ui.login.OTPActivity.decryptString;
+
 public class medicalAppointmentFragment extends Fragment {
     OTPActivity otp;
     FloatingActionButton fabAppointment;
@@ -71,6 +76,7 @@ public class medicalAppointmentFragment extends Fragment {
             @Override
             public void onRefresh() {
                 new Handler().postDelayed(new Runnable() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
@@ -99,10 +105,19 @@ public class medicalAppointmentFragment extends Fragment {
         return root;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void retrieveAppointmentDate() {
         try {
+
+            //TAO
+            Log.d(TAG, "Finding Spik");
+            String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
+            String rsaKey = AES_ECB.getRsaKey(enRsaKey);
+            String SPIK = AES_ECB.decryptRsa(rsaKey);
+
             //create token to be sent for otp
-            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
+            String token = util.generateToken(SPIK, getResources().getString(R.string.issuer), decryptString(this.getContext(), pref.getString("sessionToken", "")));
+            //String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), decryptString(this.getContext(), pref.getString("sessionToken", "")));
             Log.d(TAG, token);
 
             //get request for appointment
@@ -172,6 +187,7 @@ public class medicalAppointmentFragment extends Fragment {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onStart() {
         super.onStart();
@@ -182,7 +198,7 @@ public class medicalAppointmentFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Long timestamp = System.currentTimeMillis() / 1000;
-        String loginStamp_str = otp.decryptString(this.getContext(), pref.getString("LoginTimeStamp", ""));
+        String loginStamp_str = decryptString(this.getContext(), pref.getString("LoginTimeStamp", ""));
         Long loginStamp = Long.valueOf(loginStamp_str);
         Long difference = timestamp - loginStamp;
 

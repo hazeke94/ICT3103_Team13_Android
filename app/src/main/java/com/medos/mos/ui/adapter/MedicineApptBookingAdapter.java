@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
@@ -20,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.medos.mos.AES_ECB;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
@@ -36,6 +39,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+
+import static com.medos.mos.ui.login.OTPActivity.decryptString;
 
 public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApptBookingAdapter.AppointmentViewHolder>{
     private static final String TAG = "MedicalBookAdapter";
@@ -88,10 +93,18 @@ public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApp
                             "Date: " + date  + "\n" +
                             "Time: " + time + "\n");
                     alertDialog.setPositiveButton("Book", new DialogInterface.OnClickListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.O)
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+
+                            //TAO
+                            Log.d(TAG, "Finding Spik");
+                            String enRsaKey = decryptString(context, pref.getString("rsk", ""));
+                            String rsaKey = AES_ECB.getRsaKey(enRsaKey);
+                            String SPIK = AES_ECB.decryptRsa(rsaKey);
+
                             //generate token first
-                            String token = util.generateToken(context.getResources().getString(R.string.SPIK), context.getResources().getString(R.string.issuer), otp.decryptString(context, pref.getString("sessionToken", "")));
+                            String token = util.generateToken(SPIK, context.getResources().getString(R.string.issuer), otp.decryptString(context, pref.getString("sessionToken", "")));
                             JSONObject appt_submit = new JSONObject();
 
                             //POST Method to be implemented

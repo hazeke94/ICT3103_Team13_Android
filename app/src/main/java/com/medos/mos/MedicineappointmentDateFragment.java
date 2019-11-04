@@ -4,8 +4,10 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -44,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.medos.mos.ui.login.OTPActivity.decryptString;
 
 
 public class MedicineappointmentDateFragment extends Fragment {
@@ -105,6 +109,7 @@ public class MedicineappointmentDateFragment extends Fragment {
         datePickerDialog.show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void retrieveAppointmentDate(final String date){
         Payload payload;
         Map<String, Object> headerClaims = new HashMap();
@@ -114,8 +119,15 @@ public class MedicineappointmentDateFragment extends Fragment {
         payload = util.generatePayload(getResources().getString(R.string.issuer));
 
         try {
+
+            //TAO
+            Log.d(TAG, "Finding Spik");
+            String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
+            String rsaKey = AES_ECB.getRsaKey(enRsaKey);
+            String SPIK = AES_ECB.decryptRsa(rsaKey);
+
             //We will sign our JWT with our ApiKey secret
-            String privateKey = getResources().getString(R.string.SPIK);
+            String privateKey = SPIK;
             privateKey = privateKey.replace("-----BEGIN RSA PRIVATE KEY-----", "");
             privateKey = privateKey.replace("-----END RSA PRIVATE KEY-----", "");
             privateKey = privateKey.replaceAll("\\s+", "");

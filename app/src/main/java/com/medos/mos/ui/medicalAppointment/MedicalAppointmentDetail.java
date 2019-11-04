@@ -1,5 +1,6 @@
 package com.medos.mos.ui.medicalAppointment;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.medos.mos.AES_ECB;
 import com.medos.mos.AppointmentDateActivity;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
@@ -31,6 +34,8 @@ import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static com.medos.mos.ui.login.OTPActivity.decryptString;
 
 public class MedicalAppointmentDetail extends AppCompatActivity {
     private String TAG = "MedicalAppointmentDetail";
@@ -88,10 +93,19 @@ public class MedicalAppointmentDetail extends AppCompatActivity {
         alertDialog.setTitle("Cancel Appointment Booking");
         alertDialog.setMessage("Do you wish to cancel?");
         alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(DialogInterface dialog, int which) {
+
+                //TAO
+                Log.d(TAG, "Finding Spik");
+                String enRsaKey = decryptString(context, pref.getString("rsk", ""));
+                String rsaKey = AES_ECB.getRsaKey(enRsaKey);
+                String SPIK = AES_ECB.decryptRsa(rsaKey);
+
+
                 //generate token first
-                String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(context, pref.getString("sessionToken", "")));
+                String token = util.generateToken(SPIK, getResources().getString(R.string.issuer), otp.decryptString(context, pref.getString("sessionToken", "")));
                 JSONObject cancel_appt = new JSONObject();
 
                 try {

@@ -8,6 +8,7 @@ import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.medos.mos.AES_ECB;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
@@ -37,6 +39,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static com.medos.mos.ui.login.OTPActivity.decryptString;
+
 public class profileFragment extends Fragment {
 
     Utils util;
@@ -45,6 +49,7 @@ public class profileFragment extends Fragment {
     TextView tvName, tvage, tvgender, tvbo, tvAllergies, tvdob, tvAddr;
     OTPActivity otp;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -64,8 +69,16 @@ public class profileFragment extends Fragment {
         return root;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void retrieveProfile() {
-        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
+
+        //TAO
+        Log.d(TAG, "Finding Spik");
+        String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
+        String rsaKey = AES_ECB.getRsaKey(enRsaKey);
+        String SPIK = AES_ECB.decryptRsa(rsaKey);
+
+        String token = util.generateToken(SPIK, getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setHeader(token);
         httpCallPost.setMethodtype(HttpCall.GET);
