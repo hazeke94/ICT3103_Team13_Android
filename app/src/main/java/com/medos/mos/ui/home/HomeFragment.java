@@ -60,6 +60,7 @@ public class HomeFragment extends Fragment {
     RecyclerView rvUpcoming, rvPickUp;
     MedicalApptAdapter adapter;
     MedicalApptAdapter pickUpAdapter;
+    TextView tvMedical, tvMedicine;
 
     private String TAG = "homeFragment";
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -70,6 +71,9 @@ public class HomeFragment extends Fragment {
         pref = getContext().getSharedPreferences("Session", 0); // 0 - for private mode
         rvUpcoming = root.findViewById(R.id.rvUpcoming_Appt);
         rvPickUp = root.findViewById(R.id.rvPickUpMedication);
+
+        tvMedical = root.findViewById(R.id.tvMedicalAppt);
+        tvMedicine = root.findViewById(R.id.tvMedicineAppt);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -139,6 +143,10 @@ public class HomeFragment extends Fragment {
                             LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
                             rvPickUp.setLayoutManager(layoutManager1);
                             pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
+                            if(mPickUp.size() == 0){
+                                tvMedicine.setText("No Pick Up");
+                            }
+
                             rvPickUp.setAdapter(pickUpAdapter);
                         }
                         else{
@@ -231,6 +239,10 @@ public class HomeFragment extends Fragment {
                                 //throw into adapter to show list of appt
                                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                                 rvUpcoming.setLayoutManager(layoutManager);
+                                if(mAppt.size() == 0){
+                                    tvMedical.setText("No appointment");
+                                }
+
                                 adapter = new MedicalApptAdapter(mAppt, getActivity());
                                 rvUpcoming.setAdapter(adapter);
                         }
