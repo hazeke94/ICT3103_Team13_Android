@@ -159,8 +159,17 @@ public class HomeFragment extends Fragment {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         //log user out
-                                        MainActivity a = new MainActivity();
-                                        a.logoutUser();
+                                        //log user out
+                                        SharedPreferences.Editor editor;
+                                        editor = pref.edit();
+                                        editor.putString("sessionToken", null);
+                                        editor.putString("Phone", null);
+                                        editor.putString("Password", null);
+                                        editor.putLong("LoginTimeStamp", 0);
+                                        editor.commit();
+
+                                        Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+                                        startActivity(loginIntent);
                                     }
                                 });
                                 AlertDialog dialog = alertDialog.create();
@@ -309,7 +318,7 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Long timestamp = System.currentTimeMillis() / 1000;
-        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
+        Long loginStamp = pref.getLong("LoginTimeStamp", 100);
         Long difference = timestamp - loginStamp;
         Log.d(TAG,"timestamp "  + timestamp);
         Log.d(TAG,"loginStamp "  + loginStamp);
