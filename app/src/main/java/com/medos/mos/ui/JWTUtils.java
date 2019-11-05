@@ -1,6 +1,11 @@
 package com.medos.mos.ui;
 
 import android.util.Base64;
+import android.util.Log;
+
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
@@ -71,8 +76,6 @@ public class JWTUtils {
             e.printStackTrace();;
             return false;
         }
-
-
         return true;
     }
 }
