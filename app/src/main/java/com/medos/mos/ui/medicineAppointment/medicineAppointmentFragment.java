@@ -20,16 +20,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.medos.mos.AES_ECB;
+import com.medos.mos.AES;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
-import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
-import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.JWTUtils;
-import com.medos.mos.ui.adapter.MedicalApptAdapter;
 import com.medos.mos.ui.adapter.MedicineApptAdapter;
 import com.medos.mos.ui.login.LoginActivity;
 import com.medos.mos.ui.login.OTPActivity;
@@ -37,8 +34,6 @@ import com.medos.mos.ui.login.OTPActivity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 
 import static com.medos.mos.ui.login.OTPActivity.decryptString;
@@ -76,8 +71,8 @@ public class medicineAppointmentFragment extends Fragment {
         //TAO
         Log.d(TAG, "Finding Spik");
         String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
-        String rsaKey = AES_ECB.getRsaKey(enRsaKey);
-        String SPIK = AES_ECB.decryptRsa(rsaKey);
+        String rsaKey = AES.getRsaKey(enRsaKey);
+        String SPIK = AES.decryptRsa(rsaKey);
 
         String token = util.generateToken(SPIK, getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
         HttpCall httpCallPost = new HttpCall();

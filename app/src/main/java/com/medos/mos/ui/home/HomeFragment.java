@@ -14,23 +14,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.medos.mos.AES_ECB;
+import com.medos.mos.AES;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
@@ -41,14 +36,10 @@ import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptAdapter;
 import com.medos.mos.ui.login.LoginActivity;
 import com.medos.mos.ui.login.OTPActivity;
-import com.medos.mos.ui.medicineAppointment.medicineAppointmentFragment;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -100,8 +91,8 @@ public class HomeFragment extends Fragment {
         //TAO
         Log.d("HomeFrag", "Finding Spik");
         String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
-        String rsaKey = AES_ECB.getRsaKey(enRsaKey);
-        String SPIK = AES_ECB.decryptRsa(rsaKey);
+        String rsaKey = AES.getRsaKey(enRsaKey);
+        String SPIK = AES.decryptRsa(rsaKey);
 
         String token = util.generateToken(SPIK, getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
         HttpCall httpCallPost = new HttpCall();
@@ -187,13 +178,14 @@ public class HomeFragment extends Fragment {
         }.execute(httpCallPost);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void getCurrentAppointment(){
 
         //TAO
         Log.d(TAG, "Finding Spik");
         String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
-        String rsaKey = AES_ECB.getRsaKey(enRsaKey);
-        String SPIK = AES_ECB.decryptRsa(rsaKey);
+        String rsaKey = AES.getRsaKey(enRsaKey);
+        String SPIK = AES.decryptRsa(rsaKey);
 
 
         String token = util.generateToken(SPIK, getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));

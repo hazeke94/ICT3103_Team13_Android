@@ -20,7 +20,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.medos.mos.AES_ECB;
+import com.medos.mos.AES;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
@@ -90,8 +90,8 @@ public class MedicalApptBookingAdapter extends RecyclerView.Adapter<MedicalApptB
                             //TAO
                             Log.d(TAG, "Finding Spik");
                             String enRsaKey = decryptString(context, pref.getString("rsk", ""));
-                            String rsaKey = AES_ECB.getRsaKey(enRsaKey);
-                            String SPIK = AES_ECB.decryptRsa(rsaKey);
+                            String rsaKey = AES.getRsaKey(enRsaKey);
+                            String SPIK = AES.decryptRsa(rsaKey);
 
                             //generate token first
                             String token = util.generateToken(SPIK, context.getResources().getString(R.string.issuer), otp.decryptString(context, pref.getString("sessionToken", "")));

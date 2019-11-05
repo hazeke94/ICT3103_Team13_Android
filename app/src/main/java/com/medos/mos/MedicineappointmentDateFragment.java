@@ -1,9 +1,7 @@
 package com.medos.mos;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -21,16 +19,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
-import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
 import com.medos.mos.ui.adapter.MedicineApptBookingAdapter;
 import com.medos.mos.ui.login.OTPActivity;
 
@@ -123,8 +118,8 @@ public class MedicineappointmentDateFragment extends Fragment {
             //TAO
             Log.d(TAG, "Finding Spik");
             String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
-            String rsaKey = AES_ECB.getRsaKey(enRsaKey);
-            String SPIK = AES_ECB.decryptRsa(rsaKey);
+            String rsaKey = AES.getRsaKey(enRsaKey);
+            String SPIK = AES.decryptRsa(rsaKey);
 
             //We will sign our JWT with our ApiKey secret
             String privateKey = SPIK;

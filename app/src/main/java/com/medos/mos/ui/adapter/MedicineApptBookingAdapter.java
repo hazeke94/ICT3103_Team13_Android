@@ -22,17 +22,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.medos.mos.AES_ECB;
+import com.medos.mos.AES;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
-import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.login.OTPActivity;
-import com.medos.mos.ui.medicalAppointment.medicalAppointmentFragment;
 import com.medos.mos.ui.medicineAppointment.medicineAppointmentFragment;
 
 import org.json.JSONException;
@@ -100,8 +98,8 @@ public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApp
                             //TAO
                             Log.d(TAG, "Finding Spik");
                             String enRsaKey = decryptString(context, pref.getString("rsk", ""));
-                            String rsaKey = AES_ECB.getRsaKey(enRsaKey);
-                            String SPIK = AES_ECB.decryptRsa(rsaKey);
+                            String rsaKey = AES.getRsaKey(enRsaKey);
+                            String SPIK = AES.decryptRsa(rsaKey);
 
                             //generate token first
                             String token = util.generateToken(SPIK, context.getResources().getString(R.string.issuer), otp.decryptString(context, pref.getString("sessionToken", "")));

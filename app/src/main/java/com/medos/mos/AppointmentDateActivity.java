@@ -19,13 +19,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.MedicineAppointment;
-import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
-import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
 import com.medos.mos.ui.adapter.MedicineApptBookingAdapter;
 import com.medos.mos.ui.login.OTPActivity;
 
@@ -33,14 +30,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.medos.mos.ui.login.OTPActivity.decryptString;
 
@@ -113,8 +104,8 @@ public class AppointmentDateActivity extends AppCompatActivity {
             //TAO
             Log.d(TAG, "Finding Spik");
             String enRsaKey = decryptString(this, pref.getString("rsk", ""));
-            String rsaKey = AES_ECB.getRsaKey(enRsaKey);
-            String SPIK = AES_ECB.decryptRsa(rsaKey);
+            String rsaKey = AES.getRsaKey(enRsaKey);
+            String SPIK = AES.decryptRsa(rsaKey);
 
             //We will sign our JWT with our ApiKey secret
             String token = util.generateToken(SPIK, getResources().getString(R.string.issuer), otp.decryptString(this, pref.getString("sessionToken", "")));

@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.medos.mos.AES_ECB;
+import com.medos.mos.AES;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
 import com.medos.mos.MainActivity;
@@ -87,8 +87,8 @@ public class OTPActivity extends AppCompatActivity {
         boolean hasRSK = pref.contains("rsk");
         if (hasRSK == false) {
             Log.d(TAG, "RSK DONT EXIST");
-            editor.putString("rsk", encryptString(context, AES_ECB.getEnRsaKey()));
-            //editor.putString("rsk", AES_ECB.getEnRsaKey());
+            editor.putString("rsk", encryptString(context, AES.getEnRsaKey()));
+            //editor.putString("rsk", AES.getEnRsaKey());
             editor.apply();
             {Log.d(TAG, "RSK INSERTED");}
         } else {Log.d(TAG, "RSK EXISTS");}
@@ -98,8 +98,8 @@ public class OTPActivity extends AppCompatActivity {
             //TAO
             Log.d(TAG, "Finding SPIK");
             String enRsaKey = decryptString(context, pref.getString("rsk", ""));
-            String rsaKey = AES_ECB.getRsaKey(enRsaKey);
-            String SPIK = AES_ECB.decryptRsa(rsaKey);
+            String rsaKey = AES.getRsaKey(enRsaKey);
+            String SPIK = AES.decryptRsa(rsaKey);
 
             String token = util.generateToken(SPIK, getResources().getString(R.string.issuer));
 
