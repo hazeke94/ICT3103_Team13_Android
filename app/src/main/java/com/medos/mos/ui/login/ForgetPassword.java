@@ -93,7 +93,6 @@ public class ForgetPassword extends AppCompatActivity {
             }.execute(httpCallPost);
         }
     }
-
-    //DONE: NDK THIS
+    
     public static final String enRsaKey = getRSAKey();
 }
