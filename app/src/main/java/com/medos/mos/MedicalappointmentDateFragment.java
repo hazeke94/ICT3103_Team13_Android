@@ -1,11 +1,11 @@
 package com.medos.mos;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -27,6 +27,7 @@ import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
 import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,6 +42,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.medos.mos.ui.login.OTPActivity.decryptString;
+
 public class MedicalappointmentDateFragment extends Fragment {
 
     Button btnDatePicker, btnTimePicker;
@@ -53,6 +56,7 @@ public class MedicalappointmentDateFragment extends Fragment {
     String TAG = "AppointmentDateFragment";
     Utils util;
     SharedPreferences pref;
+    OTPActivity otp;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,6 +93,7 @@ public class MedicalappointmentDateFragment extends Fragment {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
                 new DatePickerDialog.OnDateSetListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
@@ -101,6 +106,7 @@ public class MedicalappointmentDateFragment extends Fragment {
         datePickerDialog.show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void retrieveAppointmentDate(final String date){
         Payload payload;
         Map<String, Object> headerClaims = new HashMap();
@@ -110,8 +116,15 @@ public class MedicalappointmentDateFragment extends Fragment {
         payload = util.generatePayload(getResources().getString(R.string.issuer));
 
         try {
+
+            //TAO
+            Log.d(TAG, "Finding Spik");
+            String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
+            String rsaKey = AES.getRsaKey(enRsaKey);
+            String SPIK = AES.decryptRsa(rsaKey);
+
             //We will sign our JWT with our ApiKey secret
-            String privateKey = getResources().getString(R.string.SPIK);
+            String privateKey = SPIK;
             privateKey = privateKey.replace("-----BEGIN RSA PRIVATE KEY-----", "");
             privateKey = privateKey.replace("-----END RSA PRIVATE KEY-----", "");
             privateKey = privateKey.replaceAll("\\s+", "");
@@ -125,7 +138,7 @@ public class MedicalappointmentDateFragment extends Fragment {
                     .withClaim("iss", payload.getIss())
                     .withClaim("exp", payload.getEx())
                     .withClaim("iat", payload.getIat())
-                    .withClaim("token", pref.getString("sessionToken",""))
+                    .withClaim("token", otp.decryptString(this.getContext(), pref.getString("sessionToken","")))
                     .sign(algorithm);
             Log.d(TAG,token);
 
@@ -194,8 +207,5 @@ public class MedicalappointmentDateFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
     }
-
 }

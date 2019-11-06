@@ -40,13 +40,14 @@ public class LoginActivity extends AppCompatActivity {
     HashMap<String, String> params = new HashMap<>();
     SharedPreferences pref;
     Context context;
+    OTPActivity otp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         util = new Utils();
         pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
-        String p = pref.getString("Phone", "");
+        String p = pref.getString("phone", "");
         Log.d(TAG, p);
         context = this;
         if(p != ""){

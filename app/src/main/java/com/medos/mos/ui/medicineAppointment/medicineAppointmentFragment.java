@@ -6,8 +6,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,24 +20,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.medos.mos.AES;
 import com.medos.mos.HttpCall;
 import com.medos.mos.HttpRequests;
-import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
-import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.JWTUtils;
-import com.medos.mos.ui.adapter.MedicalApptAdapter;
 import com.medos.mos.ui.adapter.MedicineApptAdapter;
 import com.medos.mos.ui.login.LoginActivity;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+
+import static com.medos.mos.ui.login.OTPActivity.decryptString;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,7 +49,9 @@ public class medicineAppointmentFragment extends Fragment {
     SharedPreferences pref;
     String TAG = "medicineApptFrag";
     MedicineApptAdapter adapter;
+    OTPActivity otp;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -62,8 +65,16 @@ public class medicineAppointmentFragment extends Fragment {
         return root;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void retrieveAppointmentDate(){
-        String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+
+        //TAO
+        Log.d(TAG, "Finding Spik");
+        String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
+        String rsaKey = AES.getRsaKey(enRsaKey);
+        String SPIK = AES.decryptRsa(rsaKey);
+
+        String token = util.generateToken(SPIK, getResources().getString(R.string.issuer), otp.decryptString(this.getContext(), pref.getString("sessionToken", "")));
         HttpCall httpCallPost = new HttpCall();
         httpCallPost.setHeader(token);
         httpCallPost.setMethodtype(HttpCall.GET);
@@ -120,7 +131,10 @@ public class medicineAppointmentFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Long timestamp = System.currentTimeMillis() / 1000;
-        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
+
+        String loginStamp_str = otp.decryptString(this.getContext(), pref.getString("LoginTimeStamp", null));
+        Long loginStamp = Long.valueOf(loginStamp_str);
+
         Long difference = timestamp - loginStamp;
         if(difference >= 3600){
             Toast.makeText(getContext(), "Session Expired, Login Again!", Toast.LENGTH_LONG).show();
@@ -136,7 +150,7 @@ public class medicineAppointmentFragment extends Fragment {
                     editor.putString("sessionToken", null);
                     editor.putString("Phone", null);
                     editor.putString("Password", null);
-                    editor.putLong("LoginTimeStamp", 0);
+                    editor.putString("LoginTimeStamp", null);
                     editor.commit();
 
                     Intent loginIntent = new Intent(getContext(), LoginActivity.class);

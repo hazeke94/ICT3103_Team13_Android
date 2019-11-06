@@ -1,5 +1,6 @@
 package com.medos.mos;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -8,6 +9,7 @@ import androidx.recyclerview.widget.SnapHelper;
 
 import android.app.DatePickerDialog;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,27 +19,21 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.model.MedicineAppointment;
-import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
-import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
 import com.medos.mos.ui.adapter.MedicineApptBookingAdapter;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+
+import static com.medos.mos.ui.login.OTPActivity.decryptString;
 
 public class AppointmentDateActivity extends AppCompatActivity {
 
@@ -52,6 +48,8 @@ public class AppointmentDateActivity extends AppCompatActivity {
     Utils util;
     SharedPreferences pref;
     MedicalAppointment med_appt;
+    OTPActivity otp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +84,7 @@ public class AppointmentDateActivity extends AppCompatActivity {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 new DatePickerDialog.OnDateSetListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
@@ -98,10 +97,18 @@ public class AppointmentDateActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void retrieveAppointmentDate(final String date){
         try {
+
+            //TAO
+            Log.d(TAG, "Finding Spik");
+            String enRsaKey = decryptString(this, pref.getString("rsk", ""));
+            String rsaKey = AES.getRsaKey(enRsaKey);
+            String SPIK = AES.decryptRsa(rsaKey);
+
             //We will sign our JWT with our ApiKey secret
-            String token = util.generateToken(getResources().getString(R.string.SPIK), getResources().getString(R.string.issuer), pref.getString("sessionToken", ""));
+            String token = util.generateToken(SPIK, getResources().getString(R.string.issuer), otp.decryptString(this, pref.getString("sessionToken", "")));
             Log.d(TAG,token);
 
             final JSONObject appointment = new JSONObject();

@@ -26,6 +26,13 @@ public class ForgetPassword extends AppCompatActivity {
     HashMap<String, String> params = new HashMap<>();
     Utils util;
     String phone = "";
+
+    public static native String getRSAKey();
+
+    static {
+        System.loadLibrary("api-keys");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +92,7 @@ public class ForgetPassword extends AppCompatActivity {
                 }
             }.execute(httpCallPost);
         }
-
     }
+    
+    public static final String enRsaKey = getRSAKey();
 }
