@@ -59,8 +59,6 @@ public class AES {
                 setKey(secret);
                 Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
                 cipher.init(Cipher.DECRYPT_MODE, secretKey);
-                String x = new String(cipher.doFinal(Base64.getDecoder().decode(enRsa)));
-                System.out.println("HERE: " + x);
                 return new String(cipher.doFinal(Base64.getDecoder().decode(enRsa)));
             }
             catch (Exception e)
@@ -89,12 +87,6 @@ public class AES {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static String getFirstKey(){
-            //DONE: hide with ndk
-
-            // TO BE REMOVED:
-            //String[] firstKeyMix2 = {"y","s","Z","Q","3","W","c","O","W","w","f","6","T","S","f","H","l","b"};
-            //String firstKey = String.join("", firstKeyMix2);
-
             return getFKey();
     }
 
