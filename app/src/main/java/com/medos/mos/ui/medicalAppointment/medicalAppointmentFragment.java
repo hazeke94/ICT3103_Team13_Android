@@ -163,8 +163,16 @@ public class medicalAppointmentFragment extends Fragment {
                                 Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
                                 if (respond.getString("Error").equals("Invalid Token")) {
                                     //log user out
-                                    MainActivity a = new MainActivity();
-                                    a.logoutUser();
+                                    SharedPreferences.Editor editor;
+                                    editor = pref.edit();
+                                    editor.putString("sessionToken", null);
+                                    editor.putString("Phone", null);
+                                    editor.putString("Password", null);
+                                    editor.putString("LoginTimeStamp", null);
+                                    editor.commit();
+
+                                    Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+                                    startActivity(loginIntent);
                                 }
                             }
                         }

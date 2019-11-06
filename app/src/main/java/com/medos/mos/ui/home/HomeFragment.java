@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -57,7 +58,7 @@ public class HomeFragment extends Fragment {
     MedicalApptAdapter adapter;
     MedicalApptAdapter pickUpAdapter;
     OTPActivity otp;
-
+    TextView tvMedical,tvMedicine;
     private String TAG = "homeFragment";
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -67,6 +68,9 @@ public class HomeFragment extends Fragment {
         pref = getContext().getSharedPreferences("Session", 0); // 0 - for private mode
         rvUpcoming = root.findViewById(R.id.rvUpcoming_Appt);
         rvPickUp = root.findViewById(R.id.rvPickUpMedication);
+
+        tvMedical = root.findViewById(R.id.tvMedicalAppt);
+        tvMedicine = root.findViewById(R.id.tvMedicineAppt);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -142,6 +146,9 @@ public class HomeFragment extends Fragment {
                             }
                                 //throw into adapter to show list of appt
                             LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
+                            if(mPickUp.size() == 0){
+                                tvMedicine.setText("No Pick Up");
+                            }
                             rvPickUp.setLayoutManager(layoutManager1);
                             pickUpAdapter = new MedicalApptAdapter(mPickUp, getActivity());
                             rvPickUp.setAdapter(pickUpAdapter);
@@ -156,8 +163,17 @@ public class HomeFragment extends Fragment {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         //log user out
-                                        MainActivity a = new MainActivity();
-                                        a.logoutUser();
+                                        //log user out
+                                        SharedPreferences.Editor editor;
+                                        editor = pref.edit();
+                                        editor.putString("sessionToken", null);
+                                        editor.putString("Phone", null);
+                                        editor.putString("Password", null);
+                                        editor.putLong("LoginTimeStamp", 0);
+                                        editor.commit();
+
+                                        Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+                                        startActivity(loginIntent);
                                     }
                                 });
                                 AlertDialog dialog = alertDialog.create();
@@ -245,6 +261,9 @@ public class HomeFragment extends Fragment {
                                 //throw into adapter to show list of appt
                                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                                 rvUpcoming.setLayoutManager(layoutManager);
+                            if(mAppt.size() == 0){
+                                tvMedical.setText("No appointment");
+                            }
                                 adapter = new MedicalApptAdapter(mAppt, getActivity());
                                 rvUpcoming.setAdapter(adapter);
                         }
@@ -252,8 +271,17 @@ public class HomeFragment extends Fragment {
                             Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
                             if(respond.getString("Error").equals("Invalid Token")){
                                 //log user out
-                                MainActivity a = new MainActivity();
-                                a.logoutUser();
+                                //log user out
+                                SharedPreferences.Editor editor;
+                                editor = pref.edit();
+                                editor.putString("sessionToken", null);
+                                editor.putString("Phone", null);
+                                editor.putString("Password", null);
+                                editor.putLong("LoginTimeStamp", 0);
+                                editor.commit();
+
+                                Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+                                startActivity(loginIntent);
                             }
                         }
                     }

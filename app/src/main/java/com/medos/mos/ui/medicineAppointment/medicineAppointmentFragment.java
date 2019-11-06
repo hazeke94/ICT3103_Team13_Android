@@ -13,7 +13,9 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,10 +62,25 @@ public class medicineAppointmentFragment extends Fragment {
         util = new Utils();
         pref = getActivity().getSharedPreferences("Session", 0); // 0 - for private mode
         rvMedicineAppt = root.findViewById(R.id.recyclerViewMedicineAppointment);
+        final SwipeRefreshLayout swipeRefreshLayout = root.findViewById(R.id.MedicineSwipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                        retrieveAppointmentDate();
+                    }
+                },1000);
+            }
+        });
         //call method to get medical appointment
         retrieveAppointmentDate();
         return root;
     }
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void retrieveAppointmentDate(){
@@ -119,6 +136,20 @@ public class medicineAppointmentFragment extends Fragment {
                         }
 
                     }
+                    else{
+                        if (respond.getString("Error").equals("Invalid Token")) {
+                            SharedPreferences.Editor editor;
+                            editor = pref.edit();
+                            editor.putString("sessionToken", null);
+                            editor.putString("Phone", null);
+                            editor.putString("Password", null);
+                            editor.putString("LoginTimeStamp", null);
+                            editor.commit();
+
+                            Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+                            startActivity(loginIntent);
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -130,6 +161,7 @@ public class medicineAppointmentFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        retrieveAppointmentDate();
         Long timestamp = System.currentTimeMillis() / 1000;
 
         String loginStamp_str = otp.decryptString(this.getContext(), pref.getString("LoginTimeStamp", null));

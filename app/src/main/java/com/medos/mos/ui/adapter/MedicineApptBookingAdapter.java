@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
@@ -30,6 +31,7 @@ import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.JWTUtils;
+import com.medos.mos.ui.login.LoginActivity;
 import com.medos.mos.ui.login.OTPActivity;
 import com.medos.mos.ui.medicineAppointment.medicineAppointmentFragment;
 
@@ -147,9 +149,18 @@ public class MedicineApptBookingAdapter extends RecyclerView.Adapter<MedicineApp
                                                     Toast.makeText(context, "Session Timeout", Toast.LENGTH_SHORT).show();
                                                     if(respond.getString("Error").equals("Invalid Token")){
                                                         //log user out
-                                                        MainActivity a = new MainActivity();
-                                                        a.logoutUser();
+                                                        SharedPreferences.Editor editor;
+                                                        editor = pref.edit();
+                                                        editor.putString("sessionToken", null);
+                                                        editor.putString("Phone", null);
+                                                        editor.putString("Password", null);
+                                                        editor.putString("LoginTimeStamp", null);
+                                                        editor.commit();
+
+                                                        Intent loginIntent = new Intent(context, LoginActivity.class);
+                                                        context.startActivity(loginIntent);
                                                     }
+                                                    activity.finish();
                                                 }
                                             }
                                             else{

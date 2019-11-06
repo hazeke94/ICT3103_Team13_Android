@@ -2,6 +2,7 @@ package com.medos.mos.ui.profile;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import com.medos.mos.MainActivity;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.ui.JWTUtils;
+import com.medos.mos.ui.login.LoginActivity;
 import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONObject;
@@ -103,10 +105,17 @@ public class profileFragment extends Fragment {
                         }
                         else{
                             Toast.makeText(getContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
-                            if(respond.getString("Error").equals("Invalid Token")){
-                                //log user out
-                                MainActivity a = new MainActivity();
-                                a.logoutUser();
+                            if (respond.getString("Error").equals("Invalid Token")) {
+                                SharedPreferences.Editor editor;
+                                editor = pref.edit();
+                                editor.putString("sessionToken", null);
+                                editor.putString("Phone", null);
+                                editor.putString("Password", null);
+                                editor.putString("LoginTimeStamp", null);
+                                editor.commit();
+
+                                Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+                                startActivity(loginIntent);
                             }
                         }
                     }

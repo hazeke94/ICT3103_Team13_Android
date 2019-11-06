@@ -27,6 +27,7 @@ import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
 import com.medos.mos.ui.JWTUtils;
+import com.medos.mos.ui.login.LoginActivity;
 import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONException;
@@ -136,10 +137,18 @@ public class MedicalAppointmentDetail extends AppCompatActivity {
                                         finish();
                                     } else{
                                         Toast.makeText(getApplicationContext(), "Session Timeout", Toast.LENGTH_SHORT).show();
-                                        if(respond.getString("Error").equals("Invalid Token")){
-                                            //log user out
-                                            MainActivity a = new MainActivity();
-                                            a.logoutUser();
+                                        Log.d(TAG,respond.getString("Error"));
+                                        if (respond.getString("Error").equals("Invalid Token")) {
+                                            SharedPreferences.Editor editor;
+                                            editor = pref.edit();
+                                            editor.putString("sessionToken", null);
+                                            editor.putString("Phone", null);
+                                            editor.putString("Password", null);
+                                            editor.putString("LoginTimeStamp", null);
+                                            editor.commit();
+
+                                            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                                            startActivity(loginIntent);
                                         }
                                     }
                                 }
