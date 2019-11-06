@@ -1,16 +1,21 @@
 package com.medos.mos;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.RequiresApi;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -25,18 +30,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.widget.Toast;
+
+import static com.medos.mos.ui.login.OTPActivity.encryptString;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     SharedPreferences pref;
+    SharedPreferences.Editor editor;
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        pref = getApplicationContext().getSharedPreferences("Session", 0); // 0 - for private mode
+        pref = getSharedPreferences("Session", 0); // 0 - for private mode
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -81,12 +91,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void logoutUser(){
-        //clear sharedPreference
-        SharedPreferences.Editor editor = pref.edit();
+        Log.d("LOGOUT", "LOGGINOUT");
+//        clear sharedPreference
+        pref = this.getSharedPreferences("Session", 0); // 0 - for private mode
+        editor = pref.edit();
         editor.putString("sessionToken", null);
         editor.putString("Phone", null);
         editor.putString("Password", null);
-        editor.putLong("LoginTimeStamp", 0);
+        editor.putString("LoginTimeStamp", null);
         editor.commit();
 
         Intent loginIntent = new Intent(this, LoginActivity.class);
@@ -97,12 +109,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        //get current time
-        Long timestamp = System.currentTimeMillis() / 1000;
-        Long loginStamp = pref.getLong("LoginTimeStamp", 0);
-        Long difference = timestamp - loginStamp;
-        if(difference >= 900000){
-            logoutUser();
-        }
     }
 }

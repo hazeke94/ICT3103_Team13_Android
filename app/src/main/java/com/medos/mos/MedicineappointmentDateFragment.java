@@ -1,9 +1,12 @@
 package com.medos.mos;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -21,10 +24,12 @@ import android.widget.Toast;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.medos.mos.model.MedicalAppointment;
+import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.model.Payload;
 import com.medos.mos.ui.JWTUtils;
-import com.medos.mos.ui.adapter.MedicalApptBookingAdapter;
+import com.medos.mos.ui.adapter.MedicineApptBookingAdapter;
+import com.medos.mos.ui.login.LoginActivity;
+import com.medos.mos.ui.login.OTPActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,23 +44,25 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class appointmentDateFragment extends Fragment {
+import static com.medos.mos.ui.login.OTPActivity.decryptString;
+
+
+public class MedicineappointmentDateFragment extends Fragment {
 
     Button btnDatePicker, btnTimePicker;
     EditText txtDate, txtTime;
     private int mYear, mMonth, mDay, mHour, mMinute;
 
     RecyclerView rvTimeSlot;
-    ArrayList<MedicalAppointment> medicalApptList = new ArrayList<>();
+    ArrayList<MedicineAppointment> medicineApptList = new ArrayList<>();
 
     String TAG = "AppointmentDateFragment";
     Utils util;
     SharedPreferences pref;
+    OTPActivity otp;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_appointment_date, container, false);
         btnDatePicker= root.findViewById(R.id.btn_date);
         txtDate=root.findViewById(R.id.in_date);
@@ -93,12 +100,13 @@ public class appointmentDateFragment extends Fragment {
                         txtDate.setText((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
 
                         //call get function
-                        retrieveAppointmentDate((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
+                        //retrieveAppointmentDate((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
                     }
                 }, mYear, mMonth, mDay);
         datePickerDialog.show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void retrieveAppointmentDate(final String date){
         Payload payload;
         Map<String, Object> headerClaims = new HashMap();
@@ -108,8 +116,15 @@ public class appointmentDateFragment extends Fragment {
         payload = util.generatePayload(getResources().getString(R.string.issuer));
 
         try {
+
+            //TAO
+            Log.d(TAG, "Finding Spik");
+            String enRsaKey = decryptString(this.getContext(), pref.getString("rsk", ""));
+            String rsaKey = AES.getRsaKey(enRsaKey);
+            String SPIK = AES.decryptRsa(rsaKey);
+
             //We will sign our JWT with our ApiKey secret
-            String privateKey = getResources().getString(R.string.SPIK);
+            String privateKey = SPIK;
             privateKey = privateKey.replace("-----BEGIN RSA PRIVATE KEY-----", "");
             privateKey = privateKey.replace("-----END RSA PRIVATE KEY-----", "");
             privateKey = privateKey.replaceAll("\\s+", "");
@@ -123,7 +138,7 @@ public class appointmentDateFragment extends Fragment {
                     .withClaim("iss", payload.getIss())
                     .withClaim("exp", payload.getEx())
                     .withClaim("iat", payload.getIat())
-                    .withClaim("token", pref.getString("sessionToken",""))
+                    .withClaim("token", otp.decryptString(this.getContext(), pref.getString("sessionToken","")))
                     .sign(algorithm);
             Log.d(TAG,token);
 
@@ -133,7 +148,7 @@ public class appointmentDateFragment extends Fragment {
             HttpCall httpCallPost = new HttpCall();
             httpCallPost.setHeader(token);
             httpCallPost.setMethodtype(HttpCall.GET);
-            httpCallPost.setUrl(util.AvailableSlotsGETURL);
+            httpCallPost.setUrl(util.AvailableMedicalSlotsGETURL);
 
             httpCallPost.setParams(appointment);
 
@@ -145,43 +160,55 @@ public class appointmentDateFragment extends Fragment {
                     String[] tokenResponse = new String[2];
                     try {
                         if(!response.equals("")){
-                        tokenResponse = JWTUtils.decoded(response);
-                        JSONObject obj = new JSONObject(tokenResponse[1]);
-                        Log.d(TAG, obj.getString("respond"));
-                        String result = obj.getString("respond");
-                        JSONObject respond = new JSONObject(result);
+                            tokenResponse = JWTUtils.decoded(response);
+                            JSONObject obj = new JSONObject(tokenResponse[1]);
+                            Log.d(TAG, obj.getString("respond"));
+                            String result = obj.getString("respond");
+                            JSONObject respond = new JSONObject(result);
 
-                        if(respond.getString("Success").equals("true")) {
-                            //get list of dates
-                            medicalApptList = new ArrayList<>();
-                            JSONArray appointmentList = respond.getJSONArray("Respond");
-                            int length = appointmentList.length();
-                            for (int i = 0; i < length; i++) {
-                                JSONObject json = appointmentList.getJSONObject(i);
+                            if(respond.getString("Success").equals("true")) {
+                                //get list of dates
+                                medicineApptList = new ArrayList<>();
+                                JSONArray appointmentList = respond.getJSONArray("Respond");
+                                int length = appointmentList.length();
+                                for (int i = 0; i < length; i++) {
+                                    JSONObject json = appointmentList.getJSONObject(i);
 
-                                MedicalAppointment appt = new MedicalAppointment(date, " ", json.getString("BookingHoursTime"), json.getInt("BookingHoursId"));
-                                medicalApptList.add(appt);
-                                Log.d(TAG, json.getString("BookingHoursId"));
-                                Log.d(TAG, json.getString("BookingHoursTime"));
+                                    //MedicineAppointment appt = new MedicineAppointment(medicineAppointmentDate,  medicineAppointmentNotes,  medicineAppointmentBookingHours,  medicineBookHourID,  medicineID,  summaryID,  status);
+                                    MedicineAppointment appt = new MedicineAppointment("",  "",  "",  1,  1,  1,  "");
+                                    medicineApptList.add(appt);
+                                    Log.d(TAG, json.getString("BookingHoursId"));
+                                    Log.d(TAG, json.getString("BookingHoursTime"));
+                                }
+                                if (medicineApptList != null) {
+                                    //throw into adapter to show list of appt
+
+                                    LinearLayoutManager layoutManager = new LinearLayoutManager((getActivity()));
+                                    rvTimeSlot.setLayoutManager(layoutManager);
+                                    MedicineApptBookingAdapter adapter = new MedicineApptBookingAdapter(medicineApptList, getActivity());
+                                    rvTimeSlot.setAdapter(adapter);
+                                }
                             }
-                            if (medicalApptList != null) {
-                                //throw into adapter to show list of appt
+                            else {
+                                if(respond.getString("Error").equals("Invalid Token")){
+                                    //log user out
+                                    //log user out
+                                    SharedPreferences.Editor editor;
+                                    editor = pref.edit();
+                                    editor.putString("sessionToken", null);
+                                    editor.putString("Phone", null);
+                                    editor.putString("Password", null);
+                                    editor.putString("LoginTimeStamp", null);
+                                    editor.commit();
 
-                                LinearLayoutManager layoutManager = new LinearLayoutManager((getActivity()));
-                                rvTimeSlot.setLayoutManager(layoutManager);
-                                MedicalApptBookingAdapter adapter = new MedicalApptBookingAdapter(medicalApptList, getActivity());
-                                rvTimeSlot.setAdapter(adapter);
+                                    Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+                                    startActivity(loginIntent);
+                                }
                             }
-                        }
-                        else{
-                            Toast.makeText(getContext(), "failed", Toast.LENGTH_SHORT).show();
-                        }
-
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
             }.execute(httpCallPost);
 
@@ -192,12 +219,5 @@ public class appointmentDateFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
     }
-
-    public void bookAppointment(){
-
-    }
-
 }

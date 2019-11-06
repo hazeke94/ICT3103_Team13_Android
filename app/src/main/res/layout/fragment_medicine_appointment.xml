@@ -1,44 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.medicineAppointment.medicineAppointmentFragment">
+    android:layout_height="match_parent">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/textMedicine"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="medicineAppointment" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_below="@+id/textMedicine"
-        android:id="@+id/recyclerViewMedicalAppointment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </androidx.recyclerview.widget.RecyclerView>
-
-    <TextView
-        android:id="@+id/textViewNoMedicineAppt"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/MedicineSwipeRefreshLayout"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+    <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/no_appointment"
-        android:textSize="@dimen/font_1"
-        android:textStyle="bold"
-        android:visibility="gone"
-        android:layout_below="@+id/recyclerViewMedicalAppointment"/>
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="-149dp"
+        tools:layout_editor_absoluteY="-225dp">
 
-    <Button
-        android:id="@+id/btnAppointment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:src="@android:drawable/ic_menu_edit"
-        />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-</RelativeLayout>
+            <TextView
+                android:id="@+id/tvUpcomingAppt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/layout_15"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:text="My Pickups"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:layout_editor_absoluteX="316dp"
+                tools:layout_editor_absoluteY="577dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewMedicineAppointment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/textViewNoMedicineAppt"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/no_appointment"
+                android:textSize="@dimen/font_1"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -15,18 +15,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.medos.mos.R;
 import com.medos.mos.Utils;
 import com.medos.mos.model.MedicalAppointment;
+import com.medos.mos.model.MedicineAppointment;
 import com.medos.mos.ui.medicalAppointment.MedicalAppointmentDetail;
+import com.medos.mos.ui.medicineAppointment.MedicineAppointmentDetail;
 
 import java.util.List;
 
-public class MedicalApptAdapter extends RecyclerView.Adapter<MedicalApptAdapter.AppointmentViewHolder> {
-    private static final String TAG = "MedicalBookAdapter";
-    List<MedicalAppointment> mAppt;
+public class MedicineApptAdapter extends RecyclerView.Adapter<MedicineApptAdapter.AppointmentViewHolder>{
+    private static final String TAG = "MedicineBookAdapter";
+    List<MedicineAppointment> mAppt;
     Context context;
     private final LayoutInflater mInflater;
     Utils util;
 
-    public MedicalApptAdapter(List<MedicalAppointment> mAppt, Context context){
+    public MedicineApptAdapter(List<MedicineAppointment> mAppt, Context context){
         this.mAppt = mAppt;
         this.context = context;
         mInflater = LayoutInflater.from(context);
@@ -37,38 +39,23 @@ public class MedicalApptAdapter extends RecyclerView.Adapter<MedicalApptAdapter.
     @Override
     public AppointmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = mInflater.inflate(R.layout.med_appointment_item, parent, false);
-        return new MedicalApptAdapter.AppointmentViewHolder(itemView);
+        return new MedicineApptAdapter.AppointmentViewHolder(itemView);
+
     }
 
     @Override
     public void onBindViewHolder(@NonNull AppointmentViewHolder holder, int position) {
         if(mAppt!= null) {
-            final MedicalAppointment appt = mAppt.get(position);
-            holder.tvDate.setText(appt.getMedicalAppointmentDate());
-            holder.tvHours.setText(appt.getMedicalAppointmentBookingHours());
-            if(appt.getStatus().equals("Pending")){
-                holder.IVStatus.setImageResource(R.drawable.icon_pending);
-            }
-            else if(appt.getStatus().equals("Approved")){
-                holder.IVStatus.setImageResource(R.drawable.icons_approved);
-            }
-            else if(appt.getStatus().equals("Completed")){
-                holder.IVStatus.setImageResource(R.drawable.icons_completed);
-            }
-            else if(appt.getStatus().equals("Collection of Medicine")){
-                holder.IVStatus.setImageResource(R.drawable.icon_medicine);
-            }
-            else if(appt.getStatus().equals("Confirmed")){
-                holder.IVStatus.setImageResource(R.drawable.icons_approved);
-            }
-            else{
-                holder.IVStatus.setImageResource(R.drawable.icon_rejected);
-            }
+            final MedicineAppointment appt = mAppt.get(position);
+            holder.tvDate.setText(appt.getMedicineAppointmentDate());
+            holder.tvHours.setText(appt.getMedicinrAppointmentBookingHours());
+            holder.IVStatus.setImageResource(R.drawable.icon_medicine);
+
             holder.cardViewAppt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //navigate to appointment Details
-                    Intent appointmentIntent = new Intent(context, MedicalAppointmentDetail.class);
+                    Intent appointmentIntent = new Intent(context, MedicineAppointmentDetail.class);
                     appointmentIntent.putExtra("appointment", appt);
                     context.startActivity(appointmentIntent);
                 }
@@ -80,11 +67,6 @@ public class MedicalApptAdapter extends RecyclerView.Adapter<MedicalApptAdapter.
     public int getItemCount() {
         return mAppt.size();
     }
-
-    public void setItems(List<MedicalAppointment> appt) {
-        this.mAppt = appt;
-    }
-
 
     public class AppointmentViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvDate, tvHours;

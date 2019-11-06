@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+//apply plugin: 'org.owasp.dependencycheck'
 
 android {
     compileSdkVersion 29
@@ -18,6 +19,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
+        }
+    }
 }
 
 dependencies {
@@ -33,6 +39,9 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+//    //OWASP
+//    implementation 'org.owasp:dependency-check-gradle:5.2.2'
+
     //swipeLayout
     implementation 'com.google.android.material:material:1.0.0'
 
@@ -40,6 +49,9 @@ dependencies {
 
     //androidx constraintlayout
     implementation "androidx.constraintlayout:constraintlayout:1.1.3"
+
+    //androidx recyclerview
+    implementation "androidx.recyclerview:recyclerview:1.0.0"
 
     //date time picker
     implementation 'com.wdullaer:materialdatetimepicker:4.2.3'
