@@ -30,7 +30,7 @@ public class ForgetPassword extends AppCompatActivity {
     public static native String getRSAKey();
 
     static {
-        System.loadLibrary("api-keys");
+        System.loadLibrary("button-lib");
     }
 
     @Override

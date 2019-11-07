@@ -202,7 +202,7 @@ public class medicalAppointmentFragment extends Fragment {
         Long loginStamp = Long.valueOf(loginStamp_str);
         Long difference = timestamp - loginStamp;
 
-        if(difference >= 3600){
+        if(difference >= 600){
             Toast.makeText(getContext(), "Session Expired, Login Again!", Toast.LENGTH_LONG).show();
             android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(getContext());
             alertDialog.setTitle("Session Expired");

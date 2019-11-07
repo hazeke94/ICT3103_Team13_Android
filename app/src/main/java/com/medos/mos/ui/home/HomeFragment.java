@@ -348,7 +348,7 @@ public class HomeFragment extends Fragment {
         Log.d(TAG,"timestamp "  + timestamp);
         Log.d(TAG,"loginStamp "  + loginStamp);
         Log.d(TAG,"Difference "  + difference);
-        if(difference >= 3600){
+        if(difference >= 600){
             Toast.makeText(getContext(), "Session Expired, Login Again!", Toast.LENGTH_LONG).show();
             android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(getContext());
             alertDialog.setTitle("Session Expired");
