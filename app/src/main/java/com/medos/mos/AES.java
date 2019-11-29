@@ -26,7 +26,7 @@ public class AES {
         public static native String getFKey();
 
         static {
-            System.loadLibrary("api-keys");
+            System.loadLibrary("button-lib");
         }
 
         //DONE: hide both with ndk

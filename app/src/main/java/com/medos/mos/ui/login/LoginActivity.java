@@ -121,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
     public void forgetPassword(View view) {
         if (pref.getString("phone", "") != "") {
             params = new HashMap<>();
-            params.put("phone", "81898811");
+            params.put("phone", pref.getString("phone", "")); //here
             JSONObject resetObject = new JSONObject(params);
 
             HttpCall httpCallPost = new HttpCall();

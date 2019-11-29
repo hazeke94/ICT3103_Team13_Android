@@ -20,8 +20,21 @@ import com.medos.mos.ui.JWTUtils;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 public class ForgetPassword extends AppCompatActivity {
+
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^" +
+                    "(?=.*[0-9])" +         //at least 1 digit
+                    "(?=.*[a-z])" +         //at least 1 lower case letter
+                    "(?=.*[A-Z])" +         //at least 1 upper case letter
+                    "(?=.*[a-zA-Z])" +      //any letter
+                    "(?=.*[!@#$%^&*()_+=])" +    //at least 1 special character
+                    "(?=\\S+$)" +           //no white spaces
+                    ".{8,}" +               //at least 8 characters
+                    "$");
+
     private static final String TAG = "ForgetPasswordActivity";
     HashMap<String, String> params = new HashMap<>();
     Utils util;
@@ -30,7 +43,7 @@ public class ForgetPassword extends AppCompatActivity {
     public static native String getRSAKey();
 
     static {
-        System.loadLibrary("api-keys");
+        System.loadLibrary("button-lib");
     }
 
     @Override
@@ -47,6 +60,11 @@ public class ForgetPassword extends AppCompatActivity {
         final String code, newPassword;
         code = edCode.getText().toString();
         newPassword = edNewPassword.getText().toString();
+
+        if (!validatePassword(newPassword)) { //added
+            return;
+        }
+
         if(!code.equals("") || !newPassword.equals("")){
             String[] tokenResponse;
             params.put("forgetPasswordToken", code);
@@ -64,6 +82,7 @@ public class ForgetPassword extends AppCompatActivity {
                 public void onResponse(String response) {
                     super.onResponse(response);
                     Log.d(TAG,"JWT response: " + response);
+
                     try {
                         String[] tokenResponse = JWTUtils.decoded(response);
                         Log.d(TAG,response);
@@ -82,7 +101,7 @@ public class ForgetPassword extends AppCompatActivity {
                             startActivity(resetIntent);
                         }
                         else{
-                            Toast.makeText(ForgetPassword.this, "Wrong code reset", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ForgetPassword.this, "Invalid Reset Code", Toast.LENGTH_SHORT).show();
                         }
 
                     } catch (Exception e) {
@@ -95,4 +114,23 @@ public class ForgetPassword extends AppCompatActivity {
     }
     
     public static final String enRsaKey = getRSAKey();
+
+    private boolean validatePassword(String newPassword) { //added
+        //String passwordInput = textInputPassword.getEditText().getText().toString().trim();
+
+        if (newPassword.isEmpty()) {
+            Toast.makeText(ForgetPassword.this, "Please enter a new password", Toast.LENGTH_SHORT).show();
+            //textInputPassword.setError("Field can't be empty");
+            return false;
+        } else if (!PASSWORD_PATTERN.matcher(newPassword).matches()) {
+            Toast.makeText(ForgetPassword.this, "Password must contain be at least 8 characters long and must include the following:\n 1 lowercase\n 1 uppercase\n 1 number\n 1 special character", Toast.LENGTH_SHORT).show();
+
+            //textInputPassword.setError("Password too weak");
+            return false;
+        } else {
+            ///textInputPassword.setError(null);
+            return true;
+        }
+    }
+
 }

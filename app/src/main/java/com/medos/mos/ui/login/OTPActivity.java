@@ -145,6 +145,8 @@ public class OTPActivity extends AppCompatActivity {
                         else{
 //                          //open dialog to confirm
                             Toast.makeText(OTPActivity.this, "Invalid OTP", Toast.LENGTH_SHORT).show();
+                            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                            startActivity(loginIntent);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
