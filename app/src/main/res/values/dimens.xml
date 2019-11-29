@@ -13,7 +13,6 @@
 
     <dimen name="appSPadding">8dp</dimen>
     <dimen name="appMPadding">16dp</dimen>
-    <dimen name="appLPadding">32dp</dimen>
     <dimen name="appXLPadding">64dp</dimen>
 
     <dimen name="textUser">25sp</dimen>
